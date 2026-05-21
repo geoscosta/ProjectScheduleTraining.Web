@@ -1,1 +1,169 @@
-<p>financial-list works!</p>
+<div class="space-y-6">
+
+  <!-- Título e botão novo -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">Financeiro</h1>
+    <button mat-raised-button color="primary" routerLink="new">
+      <mat-icon>add</mat-icon>
+      Nova Cobrança
+    </button>
+  </div>
+
+  <mat-tab-group>
+
+    <!-- Aba por aluno -->
+    <mat-tab label="Por Aluno">
+      <div class="p-4 space-y-4">
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Selecionar aluno</mat-label>
+          <mat-select
+            [(ngModel)]="selectedStudentId"
+            (ngModelChange)="onSearchFinancials($event)">
+            <mat-option value="">Selecione um aluno</mat-option>
+            @for (student of students; track student.id) {
+              <mat-option [value]="student.id">{{ student.name }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix class="mr-2">search</mat-icon>
+        </mat-form-field>
+
+        @if (isLoading) {
+          <div class="flex justify-center py-12">
+            <mat-spinner diameter="48" />
+          </div>
+        } @else if (financials.length === 0) {
+          <div class="text-center py-12 text-gray-400">
+            <mat-icon class="text-5xl">attach_money</mat-icon>
+            <p class="mt-2">Selecione um aluno para ver suas cobranças.</p>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="financials" class="w-full">
+
+            <!-- Vencimento -->
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Vencimento</th>
+              <td mat-cell *matCellDef="let financial">
+                {{ financial.dueDate | date:'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+
+            <!-- Valor -->
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Valor</th>
+              <td mat-cell *matCellDef="let financial">
+                <span class="font-semibold">
+                  R$ {{ financial.amount | number:'1.2-2' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Status -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
+              <td mat-cell *matCellDef="let financial">
+                <span
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                  [class]="getStatusClass(financial.status)">
+                  {{ getStatusLabel(financial.status) }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Ações -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
+              <td mat-cell *matCellDef="let financial">
+                <div class="flex gap-1">
+                  @if (financial.status === FinancialStatus.Pending ||
+                       financial.status === FinancialStatus.Overdue) {
+                    <button
+                      mat-icon-button
+                      (click)="onRegisterPayment(financial.id)"
+                      matTooltip="Registrar pagamento">
+                      <mat-icon class="text-green-600">payments</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      (click)="onCancel(financial.id)"
+                      matTooltip="Cancelar cobrança">
+                      <mat-icon class="text-red-600">cancel</mat-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+              class="hover:bg-gray-50 transition-colors"></tr>
+
+          </table>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Aba inadimplentes -->
+    <mat-tab label="Inadimplentes">
+      <div class="p-4">
+
+        @if (isLoadingOverdue) {
+          <div class="flex justify-center py-12">
+            <mat-spinner diameter="48" />
+          </div>
+        } @else if (overdueFinancials.length === 0) {
+          <div class="text-center py-12 text-gray-400">
+            <mat-icon class="text-5xl">check_circle</mat-icon>
+            <p class="mt-2">Nenhuma cobrança vencida.</p>
+          </div>
+        } @else {
+          <table mat-table [dataSource]="overdueFinancials" class="w-full">
+
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Vencimento</th>
+              <td mat-cell *matCellDef="let financial">
+                {{ financial.dueDate | date:'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Valor</th>
+              <td mat-cell *matCellDef="let financial">
+                <span class="font-semibold text-red-600">
+                  R$ {{ financial.amount | number:'1.2-2' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
+              <td mat-cell *matCellDef="let financial">
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                  Vencido
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
+              <td mat-cell *matCellDef="let financial">
+                <button
+                  mat-icon-button
+                  (click)="onRegisterPayment(financial.id)"
+                  matTooltip="Registrar pagamento">
+                  <mat-icon class="text-green-600">payments</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+              class="hover:bg-gray-50 transition-colors"></tr>
+
+          </table>
+        }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div>

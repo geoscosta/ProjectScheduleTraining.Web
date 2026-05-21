@@ -1,1 +1,118 @@
-<p>enrollment-list works!</p>
+<div class="space-y-6">
+
+  <!-- Título e botão novo -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">Matrículas</h1>
+    <button mat-raised-button color="primary" routerLink="new">
+      <mat-icon>add</mat-icon>
+      Nova Matrícula
+    </button>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+
+      <!-- Busca por aluno -->
+      <div class="mb-6">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Buscar matrícula por aluno</mat-label>
+          <mat-select
+            [(ngModel)]="searchStudentId"
+            (ngModelChange)="onSearchEnrollment($event)">
+            <mat-option value="">Selecione um aluno</mat-option>
+            @for (student of students; track student.id) {
+              <mat-option [value]="student.id">{{ student.name }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix class="mr-2">search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      @if (isLoading) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="48" />
+        </div>
+      } @else if (enrollments.length === 0) {
+        <div class="text-center py-12 text-gray-400">
+          <mat-icon class="text-5xl">card_membership</mat-icon>
+          <p class="mt-2">Selecione um aluno para ver sua matrícula.</p>
+        </div>
+      } @else {
+
+        <table mat-table [dataSource]="enrollments" class="w-full">
+
+          <!-- Aluno -->
+          <ng-container matColumnDef="student">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Aluno</th>
+            <td mat-cell *matCellDef="let enrollment">
+              <span class="font-medium text-gray-800">
+                {{ enrollment.student?.name || '—' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Início -->
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Início</th>
+            <td mat-cell *matCellDef="let enrollment">
+              {{ enrollment.startDate | date:'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- Vencimento -->
+          <ng-container matColumnDef="expirationDate">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Vencimento</th>
+            <td mat-cell *matCellDef="let enrollment">
+              {{ enrollment.expirationDate | date:'dd/MM/yyyy' }}
+            </td>
+          </ng-container>
+
+          <!-- Dia vencimento -->
+          <ng-container matColumnDef="paymentDueDay">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Dia Venc.</th>
+            <td mat-cell *matCellDef="let enrollment">
+              Dia {{ enrollment.paymentDueDay }}
+            </td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
+            <td mat-cell *matCellDef="let enrollment">
+              <span
+                class="px-2 py-1 rounded-full text-xs font-medium"
+                [class.bg-green-100]="enrollment.isActive"
+                [class.text-green-700]="enrollment.isActive"
+                [class.bg-red-100]="!enrollment.isActive"
+                [class.text-red-700]="!enrollment.isActive">
+                {{ enrollment.isActive ? 'Ativa' : 'Cancelada' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Ações -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
+            <td mat-cell *matCellDef="let enrollment">
+              <div class="flex gap-1">
+                @if (enrollment.isActive) {
+                  <button
+                    mat-icon-button
+                    (click)="onCancel(enrollment.id)"
+                    matTooltip="Cancelar matrícula">
+                    <mat-icon class="text-red-600">cancel</mat-icon>
+                  </button>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            class="hover:bg-gray-50 transition-colors"></tr>
+
+        </table>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

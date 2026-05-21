@@ -1,1 +1,89 @@
-<p>enrollment-form works!</p>
+<div class="space-y-6">
+
+  <!-- Título -->
+  <div class="flex items-center gap-4">
+    <button mat-icon-button routerLink="/enrollments">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="text-2xl font-bold text-gray-800">Nova Matrícula</h1>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+
+      @if (isLoading) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="48" />
+        </div>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Aluno -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Aluno</mat-label>
+            <mat-select formControlName="studentId">
+              @for (student of students; track student.id) {
+                <mat-option [value]="student.id">{{ student.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('studentId')?.hasError('required')) {
+              <mat-error>Aluno é obrigatório.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Plano -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Plano</mat-label>
+            <mat-select formControlName="planId">
+              @for (plan of plans; track plan.id) {
+                <mat-option [value]="plan.id">
+                  {{ plan.name }} — R$ {{ plan.price | number:'1.2-2' }}
+                </mat-option>
+              }
+            </mat-select>
+            @if (form.get('planId')?.hasError('required')) {
+              <mat-error>Plano é obrigatório.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Dia de vencimento -->
+          <mat-form-field appearance="outline">
+            <mat-label>Dia de vencimento da mensalidade</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="paymentDueDay"
+              placeholder="Ex: 10"
+              min="1"
+              max="28">
+            @if (form.get('paymentDueDay')?.hasError('required')) {
+              <mat-error>Dia de vencimento é obrigatório.</mat-error>
+            }
+            @if (form.get('paymentDueDay')?.hasError('min') || form.get('paymentDueDay')?.hasError('max')) {
+              <mat-error>Dia deve ser entre 1 e 28.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Botões -->
+          <div class="col-span-2 flex gap-3 justify-end pt-2">
+            <button mat-stroked-button type="button" (click)="onCancel()">
+              Cancelar
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="form.invalid || isSaving">
+              @if (isSaving) {
+                <mat-spinner diameter="20" class="inline-block mr-2" />
+              }
+              Criar Matrícula
+            </button>
+          </div>
+
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

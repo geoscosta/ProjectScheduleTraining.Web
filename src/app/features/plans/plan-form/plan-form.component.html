@@ -1,1 +1,122 @@
-<p>plan-form works!</p>
+<div class="space-y-6">
+
+  <!-- Título -->
+  <div class="flex items-center gap-4">
+    <button mat-icon-button routerLink="/plans">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="text-2xl font-bold text-gray-800">
+      {{ isEditMode ? 'Editar Plano' : 'Novo Plano' }}
+    </h1>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+
+      @if (isLoading) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="48" />
+        </div>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Nome -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Nome do plano</mat-label>
+            <input matInput formControlName="name" placeholder="Ex: Plano Mensal 3x">
+            @if (form.get('name')?.hasError('required')) {
+              <mat-error>Nome é obrigatório.</mat-error>
+            }
+            @if (form.get('name')?.hasError('maxlength')) {
+              <mat-error>Nome não pode ter mais de 100 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Tipo -->
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo do plano</mat-label>
+            <mat-select formControlName="type">
+              @for (type of planTypes; track type.value) {
+                <mat-option [value]="type.value">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('type')?.hasError('required')) {
+              <mat-error>Tipo é obrigatório.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Frequência -->
+          <mat-form-field appearance="outline">
+            <mat-label>Frequência semanal</mat-label>
+            <mat-select formControlName="weeklyFrequency">
+              @for (freq of weeklyFrequencies; track freq.value) {
+                <mat-option [value]="freq.value">{{ freq.label }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('weeklyFrequency')?.hasError('required')) {
+              <mat-error>Frequência é obrigatória.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Duração -->
+          <mat-form-field appearance="outline">
+            <mat-label>Duração (meses)</mat-label>
+            <input matInput type="number" formControlName="durationMonths" placeholder="1">
+            @if (form.get('durationMonths')?.hasError('required')) {
+              <mat-error>Duração é obrigatória.</mat-error>
+            }
+            @if (form.get('durationMonths')?.hasError('min')) {
+              <mat-error>Duração deve ser maior que zero.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Preço -->
+          <mat-form-field appearance="outline">
+            <mat-label>Valor (R$)</mat-label>
+            <input matInput type="number" formControlName="price" placeholder="0,00">
+            <span matPrefix>R$&nbsp;</span>
+            @if (form.get('price')?.hasError('required')) {
+              <mat-error>Valor é obrigatório.</mat-error>
+            }
+            @if (form.get('price')?.hasError('min')) {
+              <mat-error>Valor deve ser maior que zero.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Descrição -->
+          <mat-form-field appearance="outline" class="col-span-2">
+            <mat-label>Descrição</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              rows="3"
+              placeholder="Descrição detalhada do plano...">
+            </textarea>
+            @if (form.get('description')?.hasError('maxlength')) {
+              <mat-error>Descrição não pode ter mais de 500 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Botões -->
+          <div class="col-span-2 flex gap-3 justify-end pt-2">
+            <button mat-stroked-button type="button" (click)="onCancel()">
+              Cancelar
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="form.invalid || isSaving">
+              @if (isSaving) {
+                <mat-spinner diameter="20" class="inline-block mr-2" />
+              }
+              {{ isEditMode ? 'Salvar Alterações' : 'Criar Plano' }}
+            </button>
+          </div>
+
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,189 @@
+<div class="space-y-6">
+
+  <!-- Título -->
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button mat-icon-button (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="text-2xl font-bold text-gray-800">Detalhes do Aluno</h1>
+    </div>
+    @if (student) {
+      <button mat-raised-button color="primary" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Editar
+      </button>
+    }
+  </div>
+
+  @if (isLoading) {
+    <div class="flex justify-center py-12">
+      <mat-spinner diameter="48" />
+    </div>
+  } @else if (student) {
+
+    <!-- Dados principais -->
+    <mat-card>
+      <mat-card-content class="p-6">
+        <div class="flex items-start justify-between mb-6">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+              <mat-icon class="text-blue-600 text-3xl">person</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-gray-800">{{ student.name }}</h2>
+              <p class="text-gray-500 text-sm">{{ student.email }}</p>
+            </div>
+          </div>
+          <span
+            class="px-3 py-1 rounded-full text-sm font-medium"
+            [class]="getStatusClass(student.status)">
+            {{ getStatusLabel(student.status) }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">CPF</p>
+            <p class="text-gray-800 mt-1">{{ student.cpf }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Telefone</p>
+            <p class="text-gray-800 mt-1">{{ student.phone }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Data de Nascimento</p>
+            <p class="text-gray-800 mt-1">{{ student.birthDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Início</p>
+            <p class="text-gray-800 mt-1">{{ student.startDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+          @if (student.address) {
+            <div class="col-span-2">
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Endereço</p>
+              <p class="text-gray-800 mt-1">{{ student.address }}</p>
+            </div>
+          }
+          @if (student.emergencyContact) {
+            <div class="col-span-2">
+              <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Contato de Emergência</p>
+              <p class="text-gray-800 mt-1">{{ student.emergencyContact }}</p>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Abas de informações relacionadas -->
+    <mat-tab-group>
+
+      <!-- Matrícula -->
+      <mat-tab label="Matrícula">
+        <div class="p-4">
+          @if (enrollment) {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Início</p>
+                <p class="text-gray-800 mt-1">{{ enrollment.startDate | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Vencimento</p>
+                <p class="text-gray-800 mt-1">{{ enrollment.expirationDate | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wide">Status</p>
+                <span class="px-2 py-1 rounded-full text-xs font-medium mt-1 inline-block"
+                  [class.bg-green-100]="enrollment.isActive"
+                  [class.text-green-700]="enrollment.isActive"
+                  [class.bg-red-100]="!enrollment.isActive"
+                  [class.text-red-700]="!enrollment.isActive">
+                  {{ enrollment.isActive ? 'Ativa' : 'Cancelada' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="text-center py-8 text-gray-400">
+              <mat-icon class="text-4xl">card_membership</mat-icon>
+              <p class="mt-2 text-sm">Nenhuma matrícula ativa.</p>
+              <button mat-stroked-button color="primary" class="mt-4"
+                [routerLink]="['/enrollments/new']">
+                Criar Matrícula
+              </button>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Financeiro -->
+      <mat-tab label="Financeiro">
+        <div class="p-4 space-y-3">
+          @if (financials.length === 0) {
+            <div class="text-center py-8 text-gray-400">
+              <mat-icon class="text-4xl">attach_money</mat-icon>
+              <p class="mt-2 text-sm">Nenhuma cobrança encontrada.</p>
+            </div>
+          } @else {
+            @for (financial of financials; track financial.id) {
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="text-sm font-medium text-gray-800">
+                    Vencimento: {{ financial.dueDate | date:'dd/MM/yyyy' }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm font-bold text-gray-800">
+                    R$ {{ financial.amount | number:'1.2-2' }}
+                  </span>
+                  <span class="px-2 py-1 rounded-full text-xs font-medium"
+                    [class.bg-green-100]="financial.status === 2"
+                    [class.text-green-700]="financial.status === 2"
+                    [class.bg-yellow-100]="financial.status === 1"
+                    [class.text-yellow-700]="financial.status === 1"
+                    [class.bg-red-100]="financial.status === 3"
+                    [class.text-red-700]="financial.status === 3">
+                    {{ financial.status === 1 ? 'Pendente' : financial.status === 2 ? 'Pago' : 'Vencido' }}
+                  </span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Agendamentos -->
+      <mat-tab label="Agendamentos">
+        <div class="p-4 space-y-3">
+          @if (schedulings.length === 0) {
+            <div class="text-center py-8 text-gray-400">
+              <mat-icon class="text-4xl">event_available</mat-icon>
+              <p class="mt-2 text-sm">Nenhum agendamento encontrado.</p>
+            </div>
+          } @else {
+            @for (scheduling of schedulings; track scheduling.id) {
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                  <mat-icon class="text-blue-600">event</mat-icon>
+                  <span class="text-sm text-gray-800">
+                    {{ scheduling.isMakeup ? 'Reposição' : 'Aula regular' }}
+                  </span>
+                </div>
+                <span class="px-2 py-1 rounded-full text-xs font-medium"
+                  [class.bg-blue-100]="scheduling.status === 1"
+                  [class.text-blue-700]="scheduling.status === 1"
+                  [class.bg-green-100]="scheduling.status === 2"
+                  [class.text-green-700]="scheduling.status === 2"
+                  [class.bg-red-100]="scheduling.status === 5"
+                  [class.text-red-700]="scheduling.status === 5">
+                  {{ scheduling.status === 1 ? 'Agendado' :
+                     scheduling.status === 2 ? 'Presente' : 'Cancelado' }}
+                </span>
+              </div>
+            }
+          }
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  }
+</div>

@@ -1,0 +1,95 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+  <mat-card class="w-full max-w-md shadow-lg">
+
+    <!-- Header -->
+    <mat-card-header class="flex flex-col items-center pb-4 pt-6">
+      <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+        <mat-icon class="text-white text-3xl">fitness_center</mat-icon>
+      </div>
+      <mat-card-title class="text-2xl font-bold text-gray-800">
+        PST Studio
+      </mat-card-title>
+      <mat-card-subtitle class="text-gray-500 mt-1">
+        Faça login para continuar
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="px-6">
+
+      <!-- Mensagem de erro -->
+      @if (errorMessage) {
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Formulário -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+
+        <!-- E-mail -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>E-mail</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="seu@email.com"
+            autocomplete="email">
+          <mat-icon matPrefix class="mr-2 text-gray-400">email</mat-icon>
+          @if (email?.hasError('required')) {
+            <mat-error>E-mail é obrigatório.</mat-error>
+          }
+          @if (email?.hasError('email')) {
+            <mat-error>E-mail inválido.</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Senha -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Senha</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password">
+          <mat-icon matPrefix class="mr-2 text-gray-400">lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (password?.hasError('required')) {
+            <mat-error>Senha é obrigatória.</mat-error>
+          }
+          @if (password?.hasError('minlength')) {
+            <mat-error>Senha deve ter no mínimo 6 caracteres.</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Botão de login -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="w-full h-12 text-base"
+          [disabled]="isLoading || loginForm.invalid">
+          @if (isLoading) {
+            <mat-spinner diameter="24" class="inline-block mr-2" />
+          } @else {
+            Entrar
+          }
+        </button>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer class="px-6 py-4 text-center">
+      <span class="text-xs text-gray-400">
+        Project Schedule Training &copy; 2026
+      </span>
+    </mat-card-footer>
+
+  </mat-card>
+</div>

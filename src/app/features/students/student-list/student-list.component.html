@@ -1,0 +1,126 @@
+<div class="space-y-6">
+
+  <!-- Título e botão novo -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-gray-800">Alunos</h1>
+    <button mat-raised-button color="primary" routerLink="new">
+      <mat-icon>add</mat-icon>
+      Novo Aluno
+    </button>
+  </div>
+
+  <mat-card>
+    <mat-card-content class="p-6">
+
+      <!-- Busca -->
+      <mat-form-field appearance="outline" class="w-full mb-4">
+        <mat-label>Buscar aluno</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch()"
+          placeholder="Nome ou e-mail...">
+        <mat-icon matPrefix class="mr-2">search</mat-icon>
+      </mat-form-field>
+
+      <!-- Loading -->
+      @if (isLoading) {
+        <div class="flex justify-center py-12">
+          <mat-spinner diameter="48" />
+        </div>
+      } @else {
+
+        <!-- Tabela -->
+        <table mat-table [dataSource]="filteredStudents" class="w-full">
+
+          <!-- Nome -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Nome</th>
+            <td mat-cell *matCellDef="let student">
+              <span class="font-medium text-gray-800">{{ student.name }}</span>
+            </td>
+          </ng-container>
+
+          <!-- E-mail -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">E-mail</th>
+            <td mat-cell *matCellDef="let student">{{ student.email }}</td>
+          </ng-container>
+
+          <!-- Telefone -->
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Telefone</th>
+            <td mat-cell *matCellDef="let student">{{ student.phone }}</td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
+            <td mat-cell *matCellDef="let student">
+              <span
+                class="px-2 py-1 rounded-full text-xs font-medium"
+                [class]="getStatusClass(student.status)">
+                {{ getStatusLabel(student.status) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Ações -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
+            <td mat-cell *matCellDef="let student">
+              <div class="flex gap-1">
+                <button
+                  mat-icon-button
+                  [routerLink]="[student.id]"
+                  matTooltip="Ver detalhes">
+                  <mat-icon class="text-blue-600">visibility</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  [routerLink]="[student.id, 'edit']"
+                  matTooltip="Editar">
+                  <mat-icon class="text-gray-600">edit</mat-icon>
+                </button>
+                @if (student.status === StudentStatus.Active) {
+                  <button
+                    mat-icon-button
+                    (click)="onBlock(student.id)"
+                    matTooltip="Bloquear">
+                    <mat-icon class="text-orange-600">block</mat-icon>
+                  </button>
+                }
+                @if (student.status === StudentStatus.Blocked) {
+                  <button
+                    mat-icon-button
+                    (click)="onUnblock(student.id)"
+                    matTooltip="Desbloquear">
+                    <mat-icon class="text-green-600">check_circle</mat-icon>
+                  </button>
+                }
+                <button
+                  mat-icon-button
+                  (click)="onDeactivate(student.id)"
+                  matTooltip="Inativar">
+                  <mat-icon class="text-red-600">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            class="hover:bg-gray-50 transition-colors"></tr>
+
+          <!-- Sem resultados -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center py-8 text-gray-400" [colSpan]="displayedColumns.length">
+              Nenhum aluno encontrado.
+            </td>
+          </tr>
+
+        </table>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

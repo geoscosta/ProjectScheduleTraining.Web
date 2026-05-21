@@ -1,90 +1,46 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Título -->
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-xl font-bold text-slate-800">Dashboard</h1>
-      <p class="text-sm text-slate-500 mt-0.5">{{ today | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
-    </div>
-  </div>
+  <!-- Cabeçalho da página -->
+  <app-page-header
+    title="Dashboard"
+    [subtitle]="today | date:'EEEE, d \'de\' MMMM':'':'pt-BR'">
+  </app-page-header>
 
+  <!-- Loading global -->
   @if (isLoading) {
-    <div class="flex justify-center py-16">
-      <mat-spinner diameter="40" />
-    </div>
+    <app-loading-spinner [diameter]="40" />
   } @else {
 
     <!-- Cards de indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-      <!-- Alunos ativos -->
-      <div
-        class="bg-white rounded-xl border border-surface-200 p-5 cursor-pointer hover:shadow-card-hover transition-shadow"
-        routerLink="/students">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Alunos Ativos</p>
-            <p class="text-3xl font-bold text-slate-800 mt-2">{{ activeStudents.length }}</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
-            <mat-icon class="text-blue-500">people_alt</mat-icon>
-          </div>
-        </div>
-      </div>
+      <app-stat-card
+        title="Alunos Ativos"
+        [value]="activeStudents.length"
+        icon="people_alt"
+        color="blue"
+        routerLink="/students" />
 
-      <!-- Aulas hoje -->
-      <div
-        class="bg-white rounded-xl border border-surface-200 p-5 cursor-pointer hover:shadow-card-hover transition-shadow"
-        routerLink="/schedules">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Aulas Hoje</p>
-            <p class="text-3xl font-bold text-slate-800 mt-2">{{ todaySchedules.length }}</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
-            <mat-icon class="text-green-500">calendar_month</mat-icon>
-          </div>
-        </div>
-      </div>
+      <app-stat-card
+        title="Aulas Hoje"
+        [value]="todaySchedules.length"
+        icon="calendar_month"
+        color="green"
+        routerLink="/schedules" />
 
-      <!-- Vagas disponíveis -->
-      <div
-        class="bg-white rounded-xl border border-surface-200 p-5 cursor-pointer hover:shadow-card-hover transition-shadow"
-        routerLink="/schedules">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Vagas Livres</p>
-            <p class="text-3xl font-bold text-slate-800 mt-2">{{ totalAvailableSlots }}</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-            <mat-icon class="text-purple-500">event_available</mat-icon>
-          </div>
-        </div>
-      </div>
+      <app-stat-card
+        title="Vagas Livres"
+        [value]="totalAvailableSlots"
+        icon="event_available"
+        color="purple"
+        routerLink="/schedules" />
 
-      <!-- Inadimplentes -->
-      <div
-        class="bg-white rounded-xl border border-surface-200 p-5 cursor-pointer hover:shadow-card-hover transition-shadow"
-        routerLink="/financials">
-        <div class="flex items-start justify-between">
-          <div>
-            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Inadimplentes</p>
-            <p class="text-3xl font-bold mt-2"
-              [class.text-red-600]="overdueFinancials.length > 0"
-              [class.text-slate-800]="overdueFinancials.length === 0">
-              {{ overdueFinancials.length }}
-            </p>
-          </div>
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-            [class.bg-red-50]="overdueFinancials.length > 0"
-            [class.bg-slate-50]="overdueFinancials.length === 0">
-            <mat-icon [class.text-red-500]="overdueFinancials.length > 0"
-              [class.text-slate-400]="overdueFinancials.length === 0">
-              warning_amber
-            </mat-icon>
-          </div>
-        </div>
-      </div>
+      <app-stat-card
+        title="Inadimplentes"
+        [value]="overdueFinancials.length"
+        icon="warning_amber"
+        color="red"
+        routerLink="/financials" />
 
     </div>
 
@@ -99,41 +55,36 @@
             {{ todaySchedules.length }} horários
           </span>
         </div>
-        <div class="p-4">
-          @if (todaySchedules.length === 0) {
-            <div class="text-center py-8">
-              <mat-icon class="text-3xl text-slate-300">event_busy</mat-icon>
-              <p class="text-sm text-slate-400 mt-2">Nenhuma aula hoje</p>
-            </div>
-          } @else {
-            <div class="space-y-2">
-              @for (schedule of todaySchedules; track schedule.id) {
-                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <mat-icon class="text-blue-600 text-sm">schedule</mat-icon>
-                    </div>
-                    <div>
-                      <p class="text-sm font-medium text-slate-700">
-                        {{ schedule.startTime }} — {{ schedule.endTime }}
-                      </p>
-                      <p class="text-xs text-slate-400">
-                        {{ schedule.availableSlots }} vagas disponíveis
-                      </p>
-                    </div>
+
+        @if (todaySchedules.length === 0) {
+          <app-empty-state
+            icon="event_busy"
+            message="Nenhuma aula agendada para hoje." />
+        } @else {
+          <div class="divide-y divide-surface-100">
+            @for (schedule of todaySchedules; track schedule.id) {
+              <div class="flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <mat-icon class="text-blue-500 text-base">schedule</mat-icon>
                   </div>
-                  <span class="text-xs px-2 py-1 rounded-full font-medium"
-                    [class.bg-green-100]="schedule.status === 1"
-                    [class.text-green-700]="schedule.status === 1"
-                    [class.bg-red-100]="schedule.status === 2"
-                    [class.text-red-700]="schedule.status === 2">
-                    {{ schedule.status === 1 ? 'Disponível' : 'Lotada' }}
-                  </span>
+                  <div>
+                    <p class="text-sm font-medium text-slate-700">
+                      {{ schedule.startTime }} — {{ schedule.endTime }}
+                    </p>
+                    <p class="text-xs text-slate-400">
+                      {{ schedule.availableSlots }} vagas disponíveis
+                    </p>
+                  </div>
                 </div>
-              }
-            </div>
-          }
-        </div>
+                <span class="text-xs px-2 py-1 rounded-full font-medium"
+                  [class]="getScheduleStatusClass(schedule.status)">
+                  {{ getScheduleStatusLabel(schedule.status) }}
+                </span>
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <!-- Cobranças vencidas -->
@@ -146,32 +97,30 @@
             </span>
           }
         </div>
-        <div class="p-4">
-          @if (overdueFinancials.length === 0) {
-            <div class="text-center py-8">
-              <mat-icon class="text-3xl text-green-300">check_circle</mat-icon>
-              <p class="text-sm text-slate-400 mt-2">Nenhuma cobrança vencida</p>
-            </div>
-          } @else {
-            <div class="space-y-2">
-              @for (financial of overdueFinancials; track financial.id) {
-                <div class="flex items-center justify-between p-3 rounded-lg bg-red-50">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                      <mat-icon class="text-red-500 text-sm">payment</mat-icon>
-                    </div>
-                    <p class="text-xs text-slate-500">
-                      Venc. {{ financial.dueDate | date:'dd/MM/yyyy' }}
-                    </p>
+
+        @if (overdueFinancials.length === 0) {
+          <app-empty-state
+            icon="check_circle"
+            message="Nenhuma cobrança vencida." />
+        } @else {
+          <div class="divide-y divide-surface-100">
+            @for (financial of overdueFinancials; track financial.id) {
+              <div class="flex items-center justify-between px-5 py-3 hover:bg-red-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                    <mat-icon class="text-red-500 text-base">payment</mat-icon>
                   </div>
-                  <span class="text-sm font-bold text-red-600">
-                    R$ {{ financial.amount | number:'1.2-2' }}
-                  </span>
+                  <p class="text-xs text-slate-500">
+                    Venc. {{ financial.dueDate | date:'dd/MM/yyyy' }}
+                  </p>
                 </div>
-              }
-            </div>
-          }
-        </div>
+                <span class="text-sm font-bold text-red-600">
+                  R$ {{ financial.amount | number:'1.2-2' }}
+                </span>
+              </div>
+            }
+          </div>
+        }
       </div>
 
     </div>

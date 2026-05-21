@@ -1,18 +1,15 @@
 <aside
-  class="fixed lg:relative z-30 flex flex-col bg-slate-900 transition-all duration-300 h-full"
-  [class.w-64]="isOpen"
-  [class.w-0]="!isOpen"
-  [class.-translate-x-full]="!isOpen"
-  [class.translate-x-0]="isOpen">
+  class="flex flex-col bg-slate-900 h-full transition-all duration-300 ease-in-out overflow-hidden"
+  [style.width]="isOpen ? '256px' : '0px'">
 
-  <div class="flex flex-col h-full min-w-64">
+  <div class="flex flex-col h-full w-64">
 
     <!-- Logo -->
-    <div class="flex items-center gap-3 h-16 px-5 border-b border-slate-700/50">
+    <div class="flex items-center gap-3 h-16 px-5 border-b border-slate-700/50 flex-shrink-0">
       <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center flex-shrink-0">
         <mat-icon class="text-white text-lg">fitness_center</mat-icon>
       </div>
-      <div>
+      <div class="min-w-0">
         <p class="text-white font-semibold text-sm leading-tight">PST Studio</p>
         <p class="text-slate-400 text-xs leading-tight">Gestão</p>
       </div>
@@ -26,10 +23,8 @@
             [routerLink]="item.route"
             routerLinkActive="bg-slate-700 text-white"
             [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all duration-150 cursor-pointer group">
-            <mat-icon class="text-lg flex-shrink-0 group-[.bg-slate-700]:text-primary-400">
-              {{ item.icon }}
-            </mat-icon>
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all duration-150 cursor-pointer">
+            <mat-icon class="text-lg flex-shrink-0">{{ item.icon }}</mat-icon>
             <span class="text-sm font-medium whitespace-nowrap">{{ item.label }}</span>
           </div>
         }
@@ -37,7 +32,7 @@
     </nav>
 
     <!-- Footer -->
-    <div class="px-3 py-4 border-t border-slate-700/50">
+    <div class="px-3 py-4 border-t border-slate-700/50 flex-shrink-0">
       <div class="flex items-center gap-3 px-3 py-2">
         <div class="w-7 h-7 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0">
           <span class="text-white text-xs font-semibold">

@@ -1,30 +1,39 @@
 <div class="flex h-screen bg-surface-50 overflow-hidden">
 
   <!-- Overlay mobile -->
-  @if (isSidebarOpen) {
+  @if (isSidebarOpen && isMobile) {
     <div
-      class="fixed inset-0 bg-black/30 z-20 lg:hidden"
+      class="fixed inset-0 bg-black/40 z-20"
       (click)="toggleSidebar()">
     </div>
   }
 
-  <!-- Sidebar -->
-  <app-sidebar
-    [isOpen]="isSidebarOpen"
-    (closeSidebar)="toggleSidebar()" />
+  <!-- Sidebar DESKTOP — parte do layout, ocupa espaço -->
+  @if (!isMobile) {
+    <div
+      class="flex-shrink-0 h-full transition-all duration-300"
+      [style.width]="isSidebarOpen ? '256px' : '0px'">
+      <app-sidebar [isOpen]="isSidebarOpen" />
+    </div>
+  }
 
-  <!-- Conteúdo principal -->
-  <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+  <!-- Sidebar MOBILE — fixed, por cima do conteúdo -->
+  @if (isMobile) {
+    <div
+      class="fixed left-0 top-0 h-full z-30 transition-all duration-300"
+      [style.width]="isSidebarOpen ? '256px' : '0px'">
+      <app-sidebar [isOpen]="isSidebarOpen" />
+    </div>
+  }
 
-    <!-- Header -->
+  <!-- Conteúdo principal — sempre ocupa 100% no mobile -->
+  <div class="flex flex-col flex-1 min-w-0 overflow-hidden w-full">
     <app-header (toggleSidebar)="toggleSidebar()" />
-
-    <!-- Área de conteúdo -->
     <main class="flex-1 overflow-x-hidden overflow-y-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <router-outlet />
       </div>
     </main>
-
   </div>
+
 </div>

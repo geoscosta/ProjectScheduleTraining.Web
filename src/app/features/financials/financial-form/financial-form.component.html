@@ -1,46 +1,52 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Título -->
-  <div class="flex items-center gap-4">
-    <button mat-icon-button routerLink="/financials">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button routerLink="/financials" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="text-2xl font-bold text-gray-800">Nova Cobrança</h1>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Nova Cobrança</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Registre uma nova cobrança financeira</p>
+    </div>
   </div>
 
-  <mat-card class="max-w-lg">
-    <mat-card-content class="p-6">
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden max-w-lg">
 
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else {
+    @if (isLoading) {
+      <div class="flex justify-center py-16">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else {
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="px-6 py-5 border-b border-surface-100 space-y-4">
 
           <!-- Aluno -->
           <mat-form-field appearance="outline">
             <mat-label>Aluno</mat-label>
+            <mat-icon matPrefix class="text-slate-400 mr-2">person</mat-icon>
             <mat-select formControlName="studentId">
               @for (student of students; track student.id) {
                 <mat-option [value]="student.id">{{ student.name }}</mat-option>
               }
             </mat-select>
-            @if (form.get('studentId')?.hasError('required')) {
+            @if (form.get('studentId')?.hasError('required') && form.get('studentId')?.touched) {
               <mat-error>Aluno é obrigatório.</mat-error>
             }
           </mat-form-field>
 
           <!-- Valor -->
           <mat-form-field appearance="outline">
-            <mat-label>Valor (R$)</mat-label>
-            <input matInput type="number" formControlName="amount" placeholder="0,00">
-            <span matPrefix>R$&nbsp;</span>
-            @if (form.get('amount')?.hasError('required')) {
+            <mat-label>Valor</mat-label>
+            <span matPrefix class="text-slate-500 mr-1 text-sm">R$</span>
+            <input matInput type="number" formControlName="amount"
+              placeholder="0,00" min="0.01" step="0.01">
+            @if (form.get('amount')?.hasError('required') && form.get('amount')?.touched) {
               <mat-error>Valor é obrigatório.</mat-error>
             }
-            @if (form.get('amount')?.hasError('min')) {
+            @if (form.get('amount')?.hasError('min') && form.get('amount')?.touched) {
               <mat-error>Valor deve ser maior que zero.</mat-error>
             }
           </mat-form-field>
@@ -48,14 +54,12 @@
           <!-- Data de vencimento -->
           <mat-form-field appearance="outline">
             <mat-label>Data de vencimento</mat-label>
-            <input
-              matInput
-              [matDatepicker]="picker"
-              formControlName="dueDate"
-              [min]="today">
+            <mat-icon matPrefix class="text-slate-400 mr-2">event</mat-icon>
+            <input matInput [matDatepicker]="picker"
+              formControlName="dueDate" [min]="today">
             <mat-datepicker-toggle matIconSuffix [for]="picker" />
             <mat-datepicker #picker />
-            @if (form.get('dueDate')?.hasError('required')) {
+            @if (form.get('dueDate')?.hasError('required') && form.get('dueDate')?.touched) {
               <mat-error>Data de vencimento é obrigatória.</mat-error>
             }
           </mat-form-field>
@@ -63,34 +67,33 @@
           <!-- Descrição -->
           <mat-form-field appearance="outline">
             <mat-label>Descrição</mat-label>
-            <input
-              matInput
-              formControlName="description"
+            <input matInput formControlName="description"
               placeholder="Ex: Mensalidade Junho/2026">
             @if (form.get('description')?.hasError('maxlength')) {
               <mat-error>Descrição não pode ter mais de 300 caracteres.</mat-error>
             }
           </mat-form-field>
 
-          <!-- Botões -->
-          <div class="flex gap-3 justify-end pt-2">
-            <button mat-stroked-button type="button" (click)="onCancel()">
-              Cancelar
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="form.invalid || isSaving">
-              @if (isSaving) {
-                <mat-spinner diameter="20" class="inline-block mr-2" />
-              }
-              Criar Cobrança
-            </button>
-          </div>
+        </div>
 
-        </form>
-      }
-    </mat-card-content>
-  </mat-card>
+        <!-- Ações -->
+        <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+          <button mat-stroked-button type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || isSaving">
+            @if (isSaving) {
+              <mat-spinner diameter="18" class="inline-block mr-2" />
+            }
+            Criar Cobrança
+          </button>
+        </div>
+
+      </form>
+    }
+  </div>
 </div>

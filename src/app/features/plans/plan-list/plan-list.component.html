@@ -1,100 +1,79 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Título e botão novo -->
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-800">Planos</h1>
-    <button mat-raised-button color="primary" routerLink="new">
+  <!-- Título -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Planos</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Gerencie os planos disponíveis</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="new" class="self-start sm:self-auto">
       <mat-icon>add</mat-icon>
       Novo Plano
     </button>
   </div>
 
-  <mat-card>
-    <mat-card-content class="p-6">
+  <!-- Cards de planos -->
+  @if (isLoading) {
+    <div class="flex justify-center py-16">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (plans.length === 0) {
+    <div class="bg-white rounded-xl border border-surface-200 py-16 text-center">
+      <mat-icon class="text-4xl text-slate-300">card_membership</mat-icon>
+      <p class="text-sm text-slate-400 mt-2">Nenhum plano cadastrado.</p>
+      <button mat-stroked-button color="primary" routerLink="new" class="mt-4">
+        Criar primeiro plano
+      </button>
+    </div>
+  } @else {
 
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else {
+    <!-- Grid de cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (plan of plans; track plan.id) {
+        <div class="bg-white rounded-xl border border-surface-200 p-5 hover:shadow-card-hover transition-shadow">
 
-        <table mat-table [dataSource]="plans" class="w-full">
-
-          <!-- Nome -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Nome</th>
-            <td mat-cell *matCellDef="let plan">
-              <span class="font-medium text-gray-800">{{ plan.name }}</span>
-            </td>
-          </ng-container>
-
-          <!-- Tipo -->
-          <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Tipo</th>
-            <td mat-cell *matCellDef="let plan">
-              {{ getPlanTypeLabel(plan.type) }}
-            </td>
-          </ng-container>
-
-          <!-- Frequência -->
-          <ng-container matColumnDef="frequency">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Frequência</th>
-            <td mat-cell *matCellDef="let plan">
-              {{ getFrequencyLabel(plan.weeklyFrequency) }}
-            </td>
-          </ng-container>
-
-          <!-- Duração -->
-          <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Duração</th>
-            <td mat-cell *matCellDef="let plan">
-              {{ plan.durationMonths }} {{ plan.durationMonths === 1 ? 'mês' : 'meses' }}
-            </td>
-          </ng-container>
+          <!-- Header do card -->
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-slate-800 truncate">{{ plan.name }}</h3>
+              <span class="text-xs text-slate-500 mt-0.5 inline-block">
+                {{ getPlanTypeLabel(plan.type) }}
+              </span>
+            </div>
+            <div class="flex gap-1 ml-2">
+              <button mat-icon-button [routerLink]="[plan.id, 'edit']" matTooltip="Editar">
+                <mat-icon class="text-slate-400 hover:text-slate-600 text-lg">edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onDeactivate(plan.id)" matTooltip="Desativar">
+                <mat-icon class="text-slate-400 hover:text-red-500 text-lg">delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
 
           <!-- Preço -->
-          <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Valor</th>
-            <td mat-cell *matCellDef="let plan">
-              <span class="font-semibold text-green-700">
-                R$ {{ plan.price | number:'1.2-2' }}
-              </span>
-            </td>
-          </ng-container>
+          <div class="mb-4">
+            <p class="text-2xl font-bold text-slate-800">
+              R$ {{ plan.price | number:'1.2-2' }}
+            </p>
+            <p class="text-xs text-slate-500">
+              por {{ plan.durationMonths === 1 ? 'mês' : plan.durationMonths + ' meses' }}
+            </p>
+          </div>
 
-          <!-- Ações -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
-            <td mat-cell *matCellDef="let plan">
-              <div class="flex gap-1">
-                <button
-                  mat-icon-button
-                  [routerLink]="[plan.id, 'edit']"
-                  matTooltip="Editar">
-                  <mat-icon class="text-gray-600">edit</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="onDeactivate(plan.id)"
-                  matTooltip="Desativar">
-                  <mat-icon class="text-red-600">delete</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
+          <!-- Detalhes -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <mat-icon class="text-base text-slate-400">event_repeat</mat-icon>
+              {{ getFrequencyLabel(plan.weeklyFrequency) }}
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <mat-icon class="text-base text-slate-400">schedule</mat-icon>
+              {{ plan.durationMonths }} {{ plan.durationMonths === 1 ? 'mês' : 'meses' }} de duração
+            </div>
+          </div>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            class="hover:bg-gray-50 transition-colors"></tr>
-
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell text-center py-8 text-gray-400" [colSpan]="displayedColumns.length">
-              Nenhum plano encontrado.
-            </td>
-          </tr>
-
-        </table>
+        </div>
       }
-    </mat-card-content>
-  </mat-card>
+    </div>
+  }
 </div>

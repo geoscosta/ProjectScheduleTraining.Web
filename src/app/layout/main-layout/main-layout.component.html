@@ -1,17 +1,29 @@
-<div class="flex h-screen bg-gray-100">
+<div class="flex h-screen bg-surface-50 overflow-hidden">
+
+  <!-- Overlay mobile -->
+  @if (isSidebarOpen) {
+    <div
+      class="fixed inset-0 bg-black/30 z-20 lg:hidden"
+      (click)="toggleSidebar()">
+    </div>
+  }
 
   <!-- Sidebar -->
-  <app-sidebar [isOpen]="isSidebarOpen" />
+  <app-sidebar
+    [isOpen]="isSidebarOpen"
+    (closeSidebar)="toggleSidebar()" />
 
   <!-- Conteúdo principal -->
-  <div class="flex flex-col flex-1 overflow-hidden">
+  <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
 
     <!-- Header -->
     <app-header (toggleSidebar)="toggleSidebar()" />
 
     <!-- Área de conteúdo -->
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-      <router-outlet />
+    <main class="flex-1 overflow-x-hidden overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <router-outlet />
+      </div>
     </main>
 
   </div>

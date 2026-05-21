@@ -1,108 +1,104 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Título e botão novo -->
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-800">Alunos</h1>
-    <button mat-raised-button color="primary" routerLink="new">
+  <!-- Título -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Alunos</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Gerencie os alunos do estúdio</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="new" class="self-start sm:self-auto">
       <mat-icon>add</mat-icon>
       Novo Aluno
     </button>
   </div>
 
-  <mat-card>
-    <mat-card-content class="p-6">
+  <!-- Card principal -->
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
 
-      <!-- Busca -->
-      <mat-form-field appearance="outline" class="w-full mb-4">
+    <!-- Busca -->
+    <div class="px-5 py-4 border-b border-surface-100">
+      <mat-form-field appearance="outline" class="w-full sm:max-w-xs">
         <mat-label>Buscar aluno</mat-label>
+        <mat-icon matPrefix class="text-slate-400 mr-2">search</mat-icon>
         <input
           matInput
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearch()"
           placeholder="Nome ou e-mail...">
-        <mat-icon matPrefix class="mr-2">search</mat-icon>
       </mat-form-field>
+    </div>
 
-      <!-- Loading -->
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else {
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="flex justify-center py-16">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else {
 
-        <!-- Tabela -->
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto">
         <table mat-table [dataSource]="filteredStudents" class="w-full">
 
-          <!-- Nome -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Nome</th>
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
             <td mat-cell *matCellDef="let student">
-              <span class="font-medium text-gray-800">{{ student.name }}</span>
+              <div class="flex items-center gap-3 py-1">
+                <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                  <span class="text-primary-600 text-xs font-semibold">
+                    {{ student.name.charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <span class="font-medium text-slate-800">{{ student.name }}</span>
+              </div>
             </td>
           </ng-container>
 
-          <!-- E-mail -->
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">E-mail</th>
-            <td mat-cell *matCellDef="let student">{{ student.email }}</td>
-          </ng-container>
-
-          <!-- Telefone -->
-          <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Telefone</th>
-            <td mat-cell *matCellDef="let student">{{ student.phone }}</td>
-          </ng-container>
-
-          <!-- Status -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
+            <th mat-header-cell *matHeaderCellDef>E-mail</th>
             <td mat-cell *matCellDef="let student">
-              <span
-                class="px-2 py-1 rounded-full text-xs font-medium"
+              <span class="text-slate-600">{{ student.email }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef>Telefone</th>
+            <td mat-cell *matCellDef="let student">
+              <span class="text-slate-600">{{ student.phone }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let student">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium"
                 [class]="getStatusClass(student.status)">
                 {{ getStatusLabel(student.status) }}
               </span>
             </td>
           </ng-container>
 
-          <!-- Ações -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
+            <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let student">
-              <div class="flex gap-1">
-                <button
-                  mat-icon-button
-                  [routerLink]="[student.id]"
-                  matTooltip="Ver detalhes">
-                  <mat-icon class="text-blue-600">visibility</mat-icon>
+              <div class="flex items-center gap-1 justify-end">
+                <button mat-icon-button [routerLink]="[student.id]" matTooltip="Ver detalhes">
+                  <mat-icon class="text-slate-400 hover:text-blue-500">visibility</mat-icon>
                 </button>
-                <button
-                  mat-icon-button
-                  [routerLink]="[student.id, 'edit']"
-                  matTooltip="Editar">
-                  <mat-icon class="text-gray-600">edit</mat-icon>
+                <button mat-icon-button [routerLink]="[student.id, 'edit']" matTooltip="Editar">
+                  <mat-icon class="text-slate-400 hover:text-slate-600">edit</mat-icon>
                 </button>
                 @if (student.status === StudentStatus.Active) {
-                  <button
-                    mat-icon-button
-                    (click)="onBlock(student.id)"
-                    matTooltip="Bloquear">
-                    <mat-icon class="text-orange-600">block</mat-icon>
+                  <button mat-icon-button (click)="onBlock(student.id)" matTooltip="Bloquear">
+                    <mat-icon class="text-slate-400 hover:text-orange-500">block</mat-icon>
                   </button>
                 }
                 @if (student.status === StudentStatus.Blocked) {
-                  <button
-                    mat-icon-button
-                    (click)="onUnblock(student.id)"
-                    matTooltip="Desbloquear">
-                    <mat-icon class="text-green-600">check_circle</mat-icon>
+                  <button mat-icon-button (click)="onUnblock(student.id)" matTooltip="Desbloquear">
+                    <mat-icon class="text-slate-400 hover:text-green-500">check_circle</mat-icon>
                   </button>
                 }
-                <button
-                  mat-icon-button
-                  (click)="onDeactivate(student.id)"
-                  matTooltip="Inativar">
-                  <mat-icon class="text-red-600">delete</mat-icon>
+                <button mat-icon-button (click)="onDeactivate(student.id)" matTooltip="Inativar">
+                  <mat-icon class="text-slate-400 hover:text-red-500">delete_outline</mat-icon>
                 </button>
               </div>
             </td>
@@ -110,17 +106,65 @@
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            class="hover:bg-gray-50 transition-colors"></tr>
+            class="hover:bg-slate-50 transition-colors cursor-pointer"></tr>
 
-          <!-- Sem resultados -->
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell text-center py-8 text-gray-400" [colSpan]="displayedColumns.length">
-              Nenhum aluno encontrado.
+            <td class="mat-cell" [colSpan]="displayedColumns.length">
+              <div class="text-center py-12">
+                <mat-icon class="text-4xl text-slate-300">people_alt</mat-icon>
+                <p class="text-sm text-slate-400 mt-2">Nenhum aluno encontrado.</p>
+              </div>
             </td>
           </tr>
 
         </table>
-      }
-    </mat-card-content>
-  </mat-card>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="md:hidden divide-y divide-surface-100">
+        @if (filteredStudents.length === 0) {
+          <div class="text-center py-12">
+            <mat-icon class="text-4xl text-slate-300">people_alt</mat-icon>
+            <p class="text-sm text-slate-400 mt-2">Nenhum aluno encontrado.</p>
+          </div>
+        }
+        @for (student of filteredStudents; track student.id) {
+          <div class="px-5 py-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
+                  <span class="text-primary-600 text-sm font-semibold">
+                    {{ student.name.charAt(0).toUpperCase() }}
+                  </span>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-medium text-slate-800 truncate">{{ student.name }}</p>
+                  <p class="text-xs text-slate-500 truncate">{{ student.email }}</p>
+                  <p class="text-xs text-slate-500">{{ student.phone }}</p>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
+                [class]="getStatusClass(student.status)">
+                {{ getStatusLabel(student.status) }}
+              </span>
+            </div>
+            <div class="flex gap-1 mt-3 pl-13">
+              <button mat-stroked-button class="text-xs h-8" [routerLink]="[student.id]">
+                Ver
+              </button>
+              <button mat-stroked-button class="text-xs h-8" [routerLink]="[student.id, 'edit']">
+                Editar
+              </button>
+              @if (student.status === StudentStatus.Active) {
+                <button mat-stroked-button class="text-xs h-8" (click)="onBlock(student.id)">
+                  Bloquear
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+    }
+  </div>
 </div>

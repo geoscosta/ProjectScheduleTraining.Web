@@ -1,70 +1,74 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Título -->
-  <div class="flex items-center gap-4">
-    <button mat-icon-button routerLink="/schedules">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button routerLink="/schedules" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="text-2xl font-bold text-gray-800">Novo Horário</h1>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Novo Horário</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Adicione um novo horário na agenda</p>
+    </div>
   </div>
 
-  <mat-card class="max-w-lg">
-    <mat-card-content class="p-6">
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden max-w-lg">
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <!-- Data -->
+      <div class="px-6 py-5 border-b border-surface-100 space-y-4">
+
         <mat-form-field appearance="outline">
           <mat-label>Data da aula</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            formControlName="date"
-            [min]="today">
+          <mat-icon matPrefix class="text-slate-400 mr-2">calendar_month</mat-icon>
+          <input matInput [matDatepicker]="picker" formControlName="date" [min]="today">
           <mat-datepicker-toggle matIconSuffix [for]="picker" />
           <mat-datepicker #picker />
-          @if (form.get('date')?.hasError('required')) {
+          @if (form.get('date')?.hasError('required') && form.get('date')?.touched) {
             <mat-error>Data é obrigatória.</mat-error>
           }
         </mat-form-field>
 
-        <!-- Horário -->
         <mat-form-field appearance="outline">
           <mat-label>Horário de início</mat-label>
+          <mat-icon matPrefix class="text-slate-400 mr-2">schedule</mat-icon>
           <mat-select formControlName="startTime">
             @for (time of availableTimes; track time) {
               <mat-option [value]="time">{{ time.substring(0, 5) }}</mat-option>
             }
           </mat-select>
-          @if (form.get('startTime')?.hasError('required')) {
+          @if (form.get('startTime')?.hasError('required') && form.get('startTime')?.touched) {
             <mat-error>Horário é obrigatório.</mat-error>
           }
         </mat-form-field>
 
         <!-- Info -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
-          <mat-icon class="text-sm align-middle mr-1">info</mat-icon>
-          Cada aula tem duração de 1 hora e capacidade máxima de 5 alunos.
+        <div class="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-lg p-3">
+          <mat-icon class="text-blue-500 text-base mt-0.5 flex-shrink-0">info</mat-icon>
+          <p class="text-xs text-blue-700">
+            Cada aula tem duração de <strong>1 hora</strong> e capacidade máxima de
+            <strong>5 alunos</strong>. Aulas são permitidas de segunda a sexta.
+          </p>
         </div>
 
-        <!-- Botões -->
-        <div class="flex gap-3 justify-end pt-2">
-          <button mat-stroked-button type="button" (click)="onCancel()">
-            Cancelar
-          </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid || isSaving">
-            @if (isSaving) {
-              <mat-spinner diameter="20" class="inline-block mr-2" />
-            }
-            Criar Horário
-          </button>
-        </div>
+      </div>
 
-      </form>
-    </mat-card-content>
-  </mat-card>
+      <!-- Ações -->
+      <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+        <button mat-stroked-button type="button" (click)="onCancel()">
+          Cancelar
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="form.invalid || isSaving">
+          @if (isSaving) {
+            <mat-spinner diameter="18" class="inline-block mr-2" />
+          }
+          Criar Horário
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>

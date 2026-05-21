@@ -1,40 +1,46 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Título -->
-  <div class="flex items-center gap-4">
-    <button mat-icon-button routerLink="/enrollments">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button routerLink="/enrollments" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="text-2xl font-bold text-gray-800">Nova Matrícula</h1>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Nova Matrícula</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Matricule um aluno em um plano</p>
+    </div>
   </div>
 
-  <mat-card>
-    <mat-card-content class="p-6">
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden max-w-2xl">
 
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else {
+    @if (isLoading) {
+      <div class="flex justify-center py-16">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else {
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <div class="px-6 py-5 border-b border-surface-100 space-y-4">
 
           <!-- Aluno -->
-          <mat-form-field appearance="outline" class="col-span-2">
+          <mat-form-field appearance="outline">
             <mat-label>Aluno</mat-label>
+            <mat-icon matPrefix class="text-slate-400 mr-2">person</mat-icon>
             <mat-select formControlName="studentId">
               @for (student of students; track student.id) {
                 <mat-option [value]="student.id">{{ student.name }}</mat-option>
               }
             </mat-select>
-            @if (form.get('studentId')?.hasError('required')) {
+            @if (form.get('studentId')?.hasError('required') && form.get('studentId')?.touched) {
               <mat-error>Aluno é obrigatório.</mat-error>
             }
           </mat-form-field>
 
           <!-- Plano -->
-          <mat-form-field appearance="outline" class="col-span-2">
+          <mat-form-field appearance="outline">
             <mat-label>Plano</mat-label>
+            <mat-icon matPrefix class="text-slate-400 mr-2">card_membership</mat-icon>
             <mat-select formControlName="planId">
               @for (plan of plans; track plan.id) {
                 <mat-option [value]="plan.id">
@@ -42,7 +48,7 @@
                 </mat-option>
               }
             </mat-select>
-            @if (form.get('planId')?.hasError('required')) {
+            @if (form.get('planId')?.hasError('required') && form.get('planId')?.touched) {
               <mat-error>Plano é obrigatório.</mat-error>
             }
           </mat-form-field>
@@ -50,40 +56,40 @@
           <!-- Dia de vencimento -->
           <mat-form-field appearance="outline">
             <mat-label>Dia de vencimento da mensalidade</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="paymentDueDay"
-              placeholder="Ex: 10"
-              min="1"
-              max="28">
-            @if (form.get('paymentDueDay')?.hasError('required')) {
+            <mat-icon matPrefix class="text-slate-400 mr-2">event</mat-icon>
+            <input matInput type="number" formControlName="paymentDueDay"
+              placeholder="Ex: 10" min="1" max="28">
+            <mat-hint>Entre 1 e 28</mat-hint>
+            @if (form.get('paymentDueDay')?.hasError('required') && form.get('paymentDueDay')?.touched) {
               <mat-error>Dia de vencimento é obrigatório.</mat-error>
             }
-            @if (form.get('paymentDueDay')?.hasError('min') || form.get('paymentDueDay')?.hasError('max')) {
+            @if ((form.get('paymentDueDay')?.hasError('min') ||
+                  form.get('paymentDueDay')?.hasError('max')) &&
+                  form.get('paymentDueDay')?.touched) {
               <mat-error>Dia deve ser entre 1 e 28.</mat-error>
             }
           </mat-form-field>
 
-          <!-- Botões -->
-          <div class="col-span-2 flex gap-3 justify-end pt-2">
-            <button mat-stroked-button type="button" (click)="onCancel()">
-              Cancelar
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="form.invalid || isSaving">
-              @if (isSaving) {
-                <mat-spinner diameter="20" class="inline-block mr-2" />
-              }
-              Criar Matrícula
-            </button>
-          </div>
+        </div>
 
-        </form>
-      }
-    </mat-card-content>
-  </mat-card>
+        <!-- Ações -->
+        <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+          <button mat-stroked-button type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || isSaving">
+            @if (isSaving) {
+              <mat-spinner diameter="18" class="inline-block mr-2" />
+            }
+            Criar Matrícula
+          </button>
+        </div>
+
+      </form>
+    }
+  </div>
 </div>

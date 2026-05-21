@@ -1,110 +1,121 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
   <!-- Título -->
-  <div class="flex items-center gap-4">
-    <button mat-icon-button routerLink="/students">
+  <div class="flex items-center gap-3">
+    <button mat-icon-button routerLink="/students" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <h1 class="text-2xl font-bold text-gray-800">
-      {{ isEditMode ? 'Editar Aluno' : 'Novo Aluno' }}
-    </h1>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">
+        {{ isEditMode ? 'Editar Aluno' : 'Novo Aluno' }}
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        {{ isEditMode ? 'Atualize os dados do aluno' : 'Preencha os dados para cadastrar' }}
+      </p>
+    </div>
   </div>
 
-  <mat-card>
-    <mat-card-content class="p-6">
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
 
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else {
+    @if (isLoading) {
+      <div class="flex justify-center py-16">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else {
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-          <!-- Nome -->
-          <mat-form-field appearance="outline" class="col-span-2">
-            <mat-label>Nome completo</mat-label>
-            <input matInput formControlName="name" placeholder="Nome do aluno">
-            @if (form.get('name')?.hasError('required')) {
-              <mat-error>Nome é obrigatório.</mat-error>
-            }
-            @if (form.get('name')?.hasError('maxlength')) {
-              <mat-error>Nome não pode ter mais de 150 caracteres.</mat-error>
-            }
-          </mat-form-field>
+        <!-- Seção dados pessoais -->
+        <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-sm font-semibold text-slate-700 mb-4">Dados Pessoais</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <!-- CPF -->
-          <mat-form-field appearance="outline">
-            <mat-label>CPF</mat-label>
-            <input matInput formControlName="cpf" placeholder="000.000.000-00">
-            @if (form.get('cpf')?.hasError('required')) {
-              <mat-error>CPF é obrigatório.</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Data de nascimento -->
-          <mat-form-field appearance="outline">
-            <mat-label>Data de nascimento</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="birthDate">
-            <mat-datepicker-toggle matIconSuffix [for]="picker" />
-            <mat-datepicker #picker />
-            @if (form.get('birthDate')?.hasError('required')) {
-              <mat-error>Data de nascimento é obrigatória.</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- E-mail -->
-          <mat-form-field appearance="outline">
-            <mat-label>E-mail</mat-label>
-            <input matInput type="email" formControlName="email" placeholder="email@exemplo.com">
-            @if (form.get('email')?.hasError('required')) {
-              <mat-error>E-mail é obrigatório.</mat-error>
-            }
-            @if (form.get('email')?.hasError('email')) {
-              <mat-error>E-mail inválido.</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Telefone -->
-          <mat-form-field appearance="outline">
-            <mat-label>Telefone</mat-label>
-            <input matInput formControlName="phone" placeholder="(00) 00000-0000">
-            @if (form.get('phone')?.hasError('required')) {
-              <mat-error>Telefone é obrigatório.</mat-error>
-            }
-          </mat-form-field>
-
-          <!-- Endereço -->
-          <mat-form-field appearance="outline" class="col-span-2">
-            <mat-label>Endereço</mat-label>
-            <input matInput formControlName="address" placeholder="Rua, número, bairro, cidade">
-          </mat-form-field>
-
-          <!-- Contato de emergência -->
-          <mat-form-field appearance="outline" class="col-span-2">
-            <mat-label>Contato de emergência</mat-label>
-            <input matInput formControlName="emergencyContact" placeholder="Nome — (00) 00000-0000">
-          </mat-form-field>
-
-          <!-- Botões -->
-          <div class="col-span-2 flex gap-3 justify-end pt-2">
-            <button mat-stroked-button type="button" (click)="onCancel()">
-              Cancelar
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="form.invalid || isSaving">
-              @if (isSaving) {
-                <mat-spinner diameter="20" class="inline-block mr-2" />
+            <mat-form-field appearance="outline" class="col-span-full">
+              <mat-label>Nome completo</mat-label>
+              <input matInput formControlName="name" placeholder="Nome do aluno">
+              @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+                <mat-error>Nome é obrigatório.</mat-error>
               }
-              {{ isEditMode ? 'Salvar Alterações' : 'Criar Aluno' }}
-            </button>
-          </div>
+            </mat-form-field>
 
-        </form>
-      }
-    </mat-card-content>
-  </mat-card>
+            <mat-form-field appearance="outline">
+              <mat-label>CPF</mat-label>
+              <input matInput formControlName="cpf" placeholder="000.000.000-00">
+              @if (form.get('cpf')?.hasError('required') && form.get('cpf')?.touched) {
+                <mat-error>CPF é obrigatório.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Data de nascimento</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="birthDate">
+              <mat-datepicker-toggle matIconSuffix [for]="picker" />
+              <mat-datepicker #picker />
+              @if (form.get('birthDate')?.hasError('required') && form.get('birthDate')?.touched) {
+                <mat-error>Data de nascimento é obrigatória.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>E-mail</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="email@exemplo.com">
+              @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+                <mat-error>E-mail é obrigatório.</mat-error>
+              }
+              @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+                <mat-error>E-mail inválido.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Telefone</mat-label>
+              <input matInput formControlName="phone" placeholder="(00) 00000-0000">
+              @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
+                <mat-error>Telefone é obrigatório.</mat-error>
+              }
+            </mat-form-field>
+
+          </div>
+        </div>
+
+        <!-- Seção dados complementares -->
+        <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-sm font-semibold text-slate-700 mb-4">Dados Complementares</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <mat-form-field appearance="outline" class="col-span-full">
+              <mat-label>Endereço</mat-label>
+              <input matInput formControlName="address"
+                placeholder="Rua, número, bairro, cidade">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-full">
+              <mat-label>Contato de emergência</mat-label>
+              <input matInput formControlName="emergencyContact"
+                placeholder="Nome — (00) 00000-0000">
+            </mat-form-field>
+
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+          <button mat-stroked-button type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="form.invalid || isSaving">
+            @if (isSaving) {
+              <mat-spinner diameter="18" class="inline-block mr-2" />
+            }
+            {{ isEditMode ? 'Salvar Alterações' : 'Cadastrar Aluno' }}
+          </button>
+        </div>
+
+      </form>
+    }
+  </div>
 </div>

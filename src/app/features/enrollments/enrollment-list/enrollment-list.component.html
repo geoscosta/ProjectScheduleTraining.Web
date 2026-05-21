@@ -1,118 +1,104 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Título e botão novo -->
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold text-gray-800">Matrículas</h1>
-    <button mat-raised-button color="primary" routerLink="new">
+  <!-- Título -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Matrículas</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Gerencie as matrículas dos alunos</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="new" class="self-start sm:self-auto">
       <mat-icon>add</mat-icon>
       Nova Matrícula
     </button>
   </div>
 
-  <mat-card>
-    <mat-card-content class="p-6">
+  <!-- Busca -->
+  <div class="bg-white rounded-xl border border-surface-200 p-5">
+    <mat-form-field appearance="outline" class="w-full sm:max-w-sm">
+      <mat-label>Buscar matrícula por aluno</mat-label>
+      <mat-icon matPrefix class="text-slate-400 mr-2">person_search</mat-icon>
+      <mat-select
+        [(ngModel)]="searchStudentId"
+        (ngModelChange)="onSearchEnrollment($event)">
+        <mat-option value="">Selecione um aluno</mat-option>
+        @for (student of students; track student.id) {
+          <mat-option [value]="student.id">{{ student.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
 
-      <!-- Busca por aluno -->
-      <div class="mb-6">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Buscar matrícula por aluno</mat-label>
-          <mat-select
-            [(ngModel)]="searchStudentId"
-            (ngModelChange)="onSearchEnrollment($event)">
-            <mat-option value="">Selecione um aluno</mat-option>
-            @for (student of students; track student.id) {
-              <mat-option [value]="student.id">{{ student.name }}</mat-option>
-            }
-          </mat-select>
-          <mat-icon matPrefix class="mr-2">search</mat-icon>
-        </mat-form-field>
-      </div>
+  <!-- Resultado -->
+  @if (isLoading) {
+    <div class="flex justify-center py-16">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (enrollments.length === 0) {
+    <div class="bg-white rounded-xl border border-surface-200 py-16 text-center">
+      <mat-icon class="text-4xl text-slate-300">card_membership</mat-icon>
+      <p class="text-sm text-slate-400 mt-2">
+        {{ searchStudentId ? 'Nenhuma matrícula encontrada.' : 'Selecione um aluno para ver sua matrícula.' }}
+      </p>
+    </div>
+  } @else {
+    @for (enrollment of enrollments; track enrollment.id) {
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
 
-      @if (isLoading) {
-        <div class="flex justify-center py-12">
-          <mat-spinner diameter="48" />
-        </div>
-      } @else if (enrollments.length === 0) {
-        <div class="text-center py-12 text-gray-400">
-          <mat-icon class="text-5xl">card_membership</mat-icon>
-          <p class="mt-2">Selecione um aluno para ver sua matrícula.</p>
-        </div>
-      } @else {
-
-        <table mat-table [dataSource]="enrollments" class="w-full">
-
-          <!-- Aluno -->
-          <ng-container matColumnDef="student">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Aluno</th>
-            <td mat-cell *matCellDef="let enrollment">
-              <span class="font-medium text-gray-800">
-                {{ enrollment.student?.name || '—' }}
-              </span>
-            </td>
-          </ng-container>
-
-          <!-- Início -->
-          <ng-container matColumnDef="startDate">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Início</th>
-            <td mat-cell *matCellDef="let enrollment">
-              {{ enrollment.startDate | date:'dd/MM/yyyy' }}
-            </td>
-          </ng-container>
-
-          <!-- Vencimento -->
-          <ng-container matColumnDef="expirationDate">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Vencimento</th>
-            <td mat-cell *matCellDef="let enrollment">
-              {{ enrollment.expirationDate | date:'dd/MM/yyyy' }}
-            </td>
-          </ng-container>
-
-          <!-- Dia vencimento -->
-          <ng-container matColumnDef="paymentDueDay">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Dia Venc.</th>
-            <td mat-cell *matCellDef="let enrollment">
-              Dia {{ enrollment.paymentDueDay }}
-            </td>
-          </ng-container>
-
-          <!-- Status -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Status</th>
-            <td mat-cell *matCellDef="let enrollment">
-              <span
-                class="px-2 py-1 rounded-full text-xs font-medium"
+        <!-- Header -->
+        <div class="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+              <mat-icon class="text-blue-500 text-base">card_membership</mat-icon>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">
+                {{ enrollment.student?.name || 'Matrícula' }}
+              </p>
+              <span class="text-xs px-2 py-0.5 rounded-full font-medium"
                 [class.bg-green-100]="enrollment.isActive"
                 [class.text-green-700]="enrollment.isActive"
                 [class.bg-red-100]="!enrollment.isActive"
                 [class.text-red-700]="!enrollment.isActive">
                 {{ enrollment.isActive ? 'Ativa' : 'Cancelada' }}
               </span>
-            </td>
-          </ng-container>
+            </div>
+          </div>
+          @if (enrollment.isActive) {
+            <button
+              mat-stroked-button
+              class="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50"
+              (click)="onCancel(enrollment.id)">
+              <mat-icon class="text-sm">cancel</mat-icon>
+              Cancelar
+            </button>
+          }
+        </div>
 
-          <!-- Ações -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="font-semibold">Ações</th>
-            <td mat-cell *matCellDef="let enrollment">
-              <div class="flex gap-1">
-                @if (enrollment.isActive) {
-                  <button
-                    mat-icon-button
-                    (click)="onCancel(enrollment.id)"
-                    matTooltip="Cancelar matrícula">
-                    <mat-icon class="text-red-600">cancel</mat-icon>
-                  </button>
-                }
-              </div>
-            </td>
-          </ng-container>
+        <!-- Detalhes -->
+        <div class="px-5 py-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Início</p>
+              <p class="text-sm font-medium text-slate-700 mt-1">
+                {{ enrollment.startDate | date:'dd/MM/yyyy' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Vencimento</p>
+              <p class="text-sm font-medium text-slate-700 mt-1">
+                {{ enrollment.expirationDate | date:'dd/MM/yyyy' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Dia Venc.</p>
+              <p class="text-sm font-medium text-slate-700 mt-1">
+                Dia {{ enrollment.paymentDueDay }}
+              </p>
+            </div>
+          </div>
+        </div>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-            class="hover:bg-gray-50 transition-colors"></tr>
-
-        </table>
-      }
-    </mat-card-content>
-  </mat-card>
+      </div>
+    }
+  }
 </div>

@@ -1,0 +1,181 @@
+@use '../../../../assets/scss/colors' as *;
+@use '../../../../assets/scss/typography' as *;
+@use '../../../../assets/scss/spacing' as *;
+
+.filter {
+  background-color: $color-white;
+  border: 1px solid $color-neutral-200;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: $space-5;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-4 $space-5;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: $color-neutral-50;
+    }
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: $space-2;
+    }
+  }
+
+  &__header-icon {
+    color: $color-neutral-500;
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $color-neutral-700;
+  }
+
+  &__active-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: $color-primary-500;
+    display: inline-block;
+  }
+
+  &__chevron {
+    color: $color-neutral-400;
+    transition: transform 0.2s ease;
+
+    &--rotated {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__body {
+    border-top: 1px solid $color-neutral-100;
+    overflow: hidden;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: $space-4;
+    padding: $space-5;
+
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__divider {
+    border: none;
+    border-top: 1px solid $color-neutral-100;
+    margin: 0;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-3;
+    padding: $space-4 $space-5;
+  }
+}
+
+/// Campo customizado — label fixo acima do input.
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+  width: 100%;
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-neutral-600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: $space-3;
+    color: $color-neutral-400;
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    height: 40px;
+    padding: 0 $space-3 0 $space-8;
+    border: 1px solid $color-neutral-300;
+    border-radius: 0.5rem;
+    background-color: $color-white;
+    color: $color-neutral-800;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder {
+      color: $color-neutral-400;
+    }
+
+    &:focus {
+      border-color: $color-primary-400;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+  }
+
+  &__select {
+    width: 100%;
+    height: 40px;
+    padding: 0 $space-3;
+    border: 1px solid $color-neutral-300 !important;
+    border-radius: 0.5rem;
+    background-color: $color-white;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+
+    /// Override do Material Select para seguir o design system.
+    ::ng-deep .mat-mdc-select-trigger {
+      height: 40px;
+      padding: 0 $space-3;
+    }
+
+    ::ng-deep .mat-mdc-select-value {
+      font-size: 0.875rem;
+      color: $color-neutral-800;
+    }
+
+    ::ng-deep .mdc-line-ripple {
+      display: none;
+    }
+
+    ::ng-deep .mat-mdc-form-field-flex {
+      border: none;
+    }
+  }
+}

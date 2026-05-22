@@ -1,0 +1,8 @@
+// ─── Barrel export — importa tudo de um lugar só ─────────────────
+@forward 'colors';
+@forward 'typography';
+@forward 'spacing';
+@forward 'components';
+
+// ─── Use para importar nos componentes ───────────────────────────
+// @use '../../../assets/scss/styles' as *;

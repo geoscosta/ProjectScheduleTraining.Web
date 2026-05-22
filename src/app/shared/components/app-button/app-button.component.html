@@ -1,0 +1,17 @@
+<button
+  [type]="type"
+  [class]="getButtonClass()"
+  [disabled]="disabled || loading"
+  (click)="handleClick()">
+
+  @if (loading) {
+    <mat-spinner diameter="16" class="btn__spinner" />
+  } @else if (icon) {
+    <mat-icon class="btn__icon">{{ icon }}</mat-icon>
+  }
+
+  @if (label) {
+    <span class="btn__label">{{ label }}</span>
+  }
+
+</button>

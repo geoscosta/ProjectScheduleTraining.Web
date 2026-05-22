@@ -1,0 +1,97 @@
+<div class="bg-white rounded-xl border border-surface-200 overflow-hidden mb-5">
+
+  <!-- Header clicável -->
+  <button
+    type="button"
+    class="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors"
+    (click)="toggleExpand()">
+
+    <div class="flex items-center gap-2">
+      <mat-icon class="text-slate-500 text-lg">filter_list</mat-icon>
+      <span class="text-sm font-semibold text-slate-700">Filtro</span>
+      @if (hasActiveFilters()) {
+        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+      }
+    </div>
+
+    <mat-icon class="text-slate-400 transition-transform duration-200"
+      [class.rotate-180]="isExpanded">
+      expand_more
+    </mat-icon>
+
+  </button>
+
+  <!-- Painel de filtros animado -->
+  @if (isExpanded) {
+    <div @expandCollapse class="border-t border-surface-100">
+      <form [formGroup]="form" (ngSubmit)="onFilter()" class="px-5 py-4">
+
+        <!-- Grid de campos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+          @for (field of fields; track field.key) {
+
+            <!-- Campo texto -->
+            @if (field.type === 'text') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input
+                  matInput
+                  [formControlName]="field.key"
+                  [placeholder]="field.placeholder || ''">
+              </mat-form-field>
+            }
+
+            <!-- Campo select -->
+            @if (field.type === 'select') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <mat-select
+                  [formControlName]="field.key"
+                  [multiple]="field.multiple || false">
+                  @if (!field.multiple) {
+                    <mat-option value="">Todos</mat-option>
+                  }
+                  @for (option of field.options; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+
+            <!-- Campo data -->
+            @if (field.type === 'date') {
+              <mat-form-field appearance="outline">
+                <mat-label>{{ field.label }}</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  [formControlName]="field.key">
+                <mat-datepicker-toggle matIconSuffix [for]="picker" />
+                <mat-datepicker #picker />
+              </mat-form-field>
+            }
+
+          }
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-surface-100">
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="onClear()"
+            [disabled]="!hasActiveFilters()">
+            <mat-icon class="text-base">close</mat-icon>
+            Limpar
+          </button>
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon class="text-base">search</mat-icon>
+            Filtrar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  }
+
+</div>

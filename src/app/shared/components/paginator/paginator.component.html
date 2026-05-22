@@ -1,0 +1,75 @@
+@if (totalPages > 1 || totalElements > 0) {
+  <div class="paginator">
+
+    <!-- Info de resultados -->
+    <span class="paginator__info">
+      Exibindo {{ elementsShowing }} de {{ totalElements }} resultado(s)
+    </span>
+
+    <!-- Navegação -->
+    @if (totalPages > 1) {
+      <div class="paginator__nav">
+
+        <!-- Anterior -->
+        <button
+          class="paginator__btn"
+          [class.paginator__btn--disabled]="page <= 1"
+          [disabled]="page <= 1"
+          (click)="setPage(page - 1)"
+          title="Página anterior">
+          <mat-icon class="paginator__icon">chevron_left</mat-icon>
+        </button>
+
+        <!-- Primeira página -->
+        <button
+          class="paginator__btn"
+          [class.paginator__btn--active]="page === 1"
+          (click)="setPage(1)">
+          1
+        </button>
+
+        <!-- Reticências início -->
+        @if (showStartDots) {
+          <span class="paginator__dots">…</span>
+        }
+
+        <!-- Páginas intermediárias -->
+        @for (index of middleIndexes; track index) {
+          <button
+            class="paginator__btn"
+            [class.paginator__btn--active]="page === index"
+            (click)="setPage(index)">
+            {{ index }}
+          </button>
+        }
+
+        <!-- Reticências fim -->
+        @if (showEndDots) {
+          <span class="paginator__dots">…</span>
+        }
+
+        <!-- Última página -->
+        @if (totalPages > 1) {
+          <button
+            class="paginator__btn"
+            [class.paginator__btn--active]="page === totalPages"
+            (click)="setPage(totalPages)">
+            {{ totalPages }}
+          </button>
+        }
+
+        <!-- Próxima -->
+        <button
+          class="paginator__btn"
+          [class.paginator__btn--disabled]="page >= totalPages"
+          [disabled]="page >= totalPages"
+          (click)="setPage(page + 1)"
+          title="Próxima página">
+          <mat-icon class="paginator__icon">chevron_right</mat-icon>
+        </button>
+
+      </div>
+    }
+
+  </div>
+}

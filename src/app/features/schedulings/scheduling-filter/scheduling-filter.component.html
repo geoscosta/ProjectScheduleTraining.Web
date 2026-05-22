@@ -1,0 +1,61 @@
+<article class="filter">
+  <header class="filter__header" (click)="toggleExpand()">
+    <div class="filter__header-left">
+      <mat-icon class="filter__header-icon">filter_list</mat-icon>
+      <strong class="filter__title">Filtro</strong>
+      @if (hasActiveFilters) {
+        <span class="filter__active-dot"></span>
+      }
+    </div>
+    <mat-icon class="filter__chevron"
+      [class.filter__chevron--rotated]="!isExpanded">
+      expand_more
+    </mat-icon>
+  </header>
+
+  @if (isExpanded) {
+    <main @expandCollapse class="filter__body">
+      <form [formGroup]="form" (ngSubmit)="onFilter()">
+        <div class="filter__grid">
+
+          <div class="field">
+            <label class="field__label">Data</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">calendar_month</mat-icon>
+              <input class="field__input field__input--datepicker"
+                [matDatepicker]="picker"
+                formControlName="date"
+                placeholder="Selecione a data">
+              <mat-datepicker-toggle class="field__datepicker-toggle"
+                [for]="picker" />
+              <mat-datepicker #picker />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Status</label>
+            <mat-select class="field__select" formControlName="status">
+              <mat-option [value]="null">Todos</mat-option>
+              @for (option of statusOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </div>
+
+        </div>
+        <hr class="filter__divider">
+        <footer class="filter__footer">
+          <button mat-stroked-button type="button" (click)="onClear()"
+            [disabled]="!hasActiveFilters">
+            <mat-icon>close</mat-icon>
+            Limpar
+          </button>
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>search</mat-icon>
+            Filtrar
+          </button>
+        </footer>
+      </form>
+    </main>
+  }
+</article>

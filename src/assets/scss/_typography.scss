@@ -1,0 +1,89 @@
+$font-family-base: 'Inter', sans-serif;
+
+// ─── Mixins de tipografia ─────────────────────────────────────────
+
+@mixin text-xs {
+  font-family: $font-family-base;
+  font-size: 0.75rem;
+  line-height: 1.125rem;
+}
+
+@mixin text-xs-medium {
+  @include text-xs;
+  font-weight: 500;
+}
+
+@mixin text-xs-bold {
+  @include text-xs;
+  font-weight: 700;
+}
+
+@mixin text-sm {
+  font-family: $font-family-base;
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+}
+
+@mixin text-sm-medium {
+  @include text-sm;
+  font-weight: 500;
+}
+
+@mixin text-sm-bold {
+  @include text-sm;
+  font-weight: 700;
+}
+
+@mixin text-base {
+  font-family: $font-family-base;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+@mixin text-base-medium {
+  @include text-base;
+  font-weight: 500;
+}
+
+@mixin text-base-bold {
+  @include text-base;
+  font-weight: 700;
+}
+
+@mixin text-lg {
+  font-family: $font-family-base;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+@mixin text-lg-medium {
+  @include text-lg;
+  font-weight: 500;
+}
+
+@mixin text-lg-bold {
+  @include text-lg;
+  font-weight: 700;
+}
+
+@mixin text-xl {
+  font-family: $font-family-base;
+  font-size: 1.25rem;
+  line-height: 1.875rem;
+}
+
+@mixin text-xl-bold {
+  @include text-xl;
+  font-weight: 700;
+}
+
+@mixin text-2xl {
+  font-family: $font-family-base;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+@mixin text-2xl-bold {
+  @include text-2xl;
+  font-weight: 700;
+}

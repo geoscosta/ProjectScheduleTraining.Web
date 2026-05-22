@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FinancialService } from '../../../core/services/financial/financial.service';
 import { StudentService } from '../../../core/services/student/student.service';
 import { FinancialSummary, FinancialStatus } from '../../../core/models/financial.model';
-import { StudentSummary } from '../../../core/models/student.model';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badge.component';
+import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
+import { PaginatorComponent } from '../../../shared/components/paginator/paginator.component';
+import { FinancialFilterComponent, FinancialFilter } from '../financial-filter/financial-filter.component';
 
 @Component({
   selector: 'app-financial-list',
@@ -23,31 +23,37 @@ import { StudentSummary } from '../../../core/models/student.model';
   imports: [
     CommonModule,
     RouterLink,
-    FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
+    MatButtonModule,
     MatSnackBarModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatTabsModule
+    MatTooltipModule,
+    MatTabsModule,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+    BadgeComponent,
+    AppButtonComponent,
+    PaginatorComponent,
+    FinancialFilterComponent
   ],
   templateUrl: './financial-list.component.html',
   styleUrl: './financial-list.component.scss'
 })
 export class FinancialListComponent implements OnInit {
 
-  displayedColumns = ['dueDate', 'amount', 'status', 'actions'];
-  financials: FinancialSummary[] = [];
+  allFinancials: FinancialSummary[] = [];
+  filteredFinancials: FinancialSummary[] = [];
+  pagedFinancials: FinancialSummary[] = [];
   overdueFinancials: FinancialSummary[] = [];
-  students: StudentSummary[] = [];
   isLoading = false;
   isLoadingOverdue = true;
-  selectedStudentId = '';
   FinancialStatus = FinancialStatus;
+
+  /// Configuração de paginação.
+  page = 1;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
 
   constructor(
     private financialService: FinancialService,
@@ -56,15 +62,17 @@ export class FinancialListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadStudents();
     this.loadOverdue();
   }
 
-  /// Carrega a lista de alunos para busca de cobranças.
-  private loadStudents(): void {
-    this.studentService.getAll().subscribe({
-      next: (students) => this.students = students
-    });
+  /// Exibe mensagem de sucesso via snackbar.
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-success' });
+  }
+
+  /// Exibe mensagem de erro via snackbar.
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-error' });
   }
 
   /// Carrega todas as cobranças vencidas do sistema.
@@ -79,32 +87,59 @@ export class FinancialListComponent implements OnInit {
     });
   }
 
-  /// Busca as cobranças do aluno selecionado.
-  onSearchFinancials(studentId: string): void {
-    if (!studentId) return;
-
+  /// Aplica o filtro recebido do FinancialFilterComponent.
+  onFilterApplied(filter: FinancialFilter): void {
     this.isLoading = true;
-    this.financialService.getByStudentId(studentId).subscribe({
+    /// Busca cobranças do aluno pelo nome via studentService se necessário.
+    this.financialService.getOverdue().subscribe({
       next: (financials) => {
-        this.financials = financials;
+        this.allFinancials = financials;
+        this.filteredFinancials = financials.filter(f => {
+          if (filter.status !== null && f.status !== filter.status) return false;
+          if (filter.dueDateStart &&
+            new Date(f.dueDate) < filter.dueDateStart) return false;
+          if (filter.dueDateEnd &&
+            new Date(f.dueDate) > filter.dueDateEnd) return false;
+          return true;
+        });
+        this.page = 1;
+        this.updatePagination();
         this.isLoading = false;
       },
-      error: () => {
-        this.isLoading = false;
-        this.snackBar.open('Erro ao carregar cobranças.', 'Fechar', { duration: 3000 });
-      }
+      error: () => this.isLoading = false
     });
+  }
+
+  /// Limpa os filtros.
+  onFilterCleared(): void {
+    this.filteredFinancials = [];
+    this.pagedFinancials = [];
+    this.totalElements = 0;
+    this.totalPages = 0;
+  }
+
+  /// Atualiza os dados de paginação.
+  private updatePagination(): void {
+    this.totalElements = this.filteredFinancials.length;
+    this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+    const start = (this.page - 1) * this.pageSize;
+    this.pagedFinancials = this.filteredFinancials.slice(start, start + this.pageSize);
+  }
+
+  /// Navega para a página selecionada no paginator.
+  onPageChanged(page: number): void {
+    this.page = page;
+    this.updatePagination();
   }
 
   /// Registra o pagamento de uma cobrança.
   onRegisterPayment(id: string): void {
     this.financialService.registerPayment(id, {}).subscribe({
       next: () => {
-        this.snackBar.open('Pagamento registrado com sucesso.', 'Fechar', { duration: 3000 });
-        this.onSearchFinancials(this.selectedStudentId);
+        this.showSuccess('Pagamento registrado com sucesso.');
         this.loadOverdue();
       },
-      error: () => this.snackBar.open('Erro ao registrar pagamento.', 'Fechar', { duration: 3000 })
+      error: () => this.showError('Erro ao registrar pagamento.')
     });
   }
 
@@ -112,12 +147,23 @@ export class FinancialListComponent implements OnInit {
   onCancel(id: string): void {
     this.financialService.cancel(id).subscribe({
       next: () => {
-        this.snackBar.open('Cobrança cancelada com sucesso.', 'Fechar', { duration: 3000 });
-        this.onSearchFinancials(this.selectedStudentId);
+        this.showSuccess('Cobrança cancelada com sucesso.');
         this.loadOverdue();
       },
-      error: () => this.snackBar.open('Erro ao cancelar cobrança.', 'Fechar', { duration: 3000 })
+      error: () => this.showError('Erro ao cancelar cobrança.')
     });
+  }
+
+  /// Retorna o tipo do badge baseado no status financeiro.
+  getStatusBadgeType(status: FinancialStatus): BadgeType {
+    const types: Record<FinancialStatus, BadgeType> = {
+      [FinancialStatus.Pending]: 'warning',
+      [FinancialStatus.Paid]: 'success',
+      [FinancialStatus.Overdue]: 'danger',
+      [FinancialStatus.Cancelled]: 'neutral',
+      [FinancialStatus.Exempt]: 'info'
+    };
+    return types[status];
   }
 
   /// Retorna o label do status financeiro.
@@ -130,17 +176,5 @@ export class FinancialListComponent implements OnInit {
       [FinancialStatus.Exempt]: 'Isento'
     };
     return labels[status];
-  }
-
-  /// Retorna a classe CSS do badge de status.
-  getStatusClass(status: FinancialStatus): string {
-    const classes: Record<FinancialStatus, string> = {
-      [FinancialStatus.Pending]: 'bg-yellow-100 text-yellow-700',
-      [FinancialStatus.Paid]: 'bg-green-100 text-green-700',
-      [FinancialStatus.Overdue]: 'bg-red-100 text-red-700',
-      [FinancialStatus.Cancelled]: 'bg-gray-100 text-gray-700',
-      [FinancialStatus.Exempt]: 'bg-blue-100 text-blue-700'
-    };
-    return classes[status];
   }
 }

@@ -1,0 +1,83 @@
+@use '../../../../assets/scss/colors' as *;
+@use '../../../../assets/scss/typography' as *;
+@use '../../../../assets/scss/spacing' as *;
+
+.paginator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-3;
+  padding: $space-4 $space-5;
+  border-top: 1px solid $color-neutral-100;
+
+  /// Texto de informação de resultados.
+  &__info {
+    font-size: 0.75rem;
+    color: $color-neutral-500;
+  }
+
+  /// Container dos botões de navegação.
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+  }
+
+  /// Botão de página individual.
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 $space-2;
+    border: 1px solid $color-neutral-200;
+    border-radius: $space-2;
+    background-color: $color-white;
+    color: $color-neutral-700;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: 'Inter', sans-serif;
+
+    &:hover:not(:disabled):not(.paginator__btn--active) {
+      background-color: $color-neutral-50;
+      border-color: $color-neutral-300;
+    }
+
+    /// Estado ativo — página atual.
+    &--active {
+      background-color: $color-primary-500;
+      border-color: $color-primary-500;
+      color: $color-white;
+      cursor: default;
+    }
+
+    /// Estado desabilitado — primeira/última página.
+    &--disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  /// Ícone chevron nos botões de anterior/próximo.
+  &__icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /// Reticências entre páginas.
+  &__dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    color: $color-neutral-400;
+    font-size: 0.875rem;
+    user-select: none;
+  }
+}

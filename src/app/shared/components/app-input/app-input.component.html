@@ -1,0 +1,34 @@
+<div class="input-wrapper" [class.input-wrapper--error]="hasError"
+  [class.input-wrapper--focused]="isFocused"
+  [class.input-wrapper--disabled]="disabled">
+
+  @if (label) {
+    <label class="input-wrapper__label">
+      {{ label }}
+      @if (required) {
+        <span class="input-wrapper__required">*</span>
+      }
+    </label>
+  }
+
+  <div class="input-wrapper__field">
+    @if (icon) {
+      <mat-icon class="input-wrapper__icon">{{ icon }}</mat-icon>
+    }
+    <input
+      [type]="type"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      [value]="value"
+      (input)="handleChange($event)"
+      (focus)="handleFocus()"
+      (blur)="handleBlur()"
+      class="input-wrapper__input"
+      [class.input-wrapper__input--with-icon]="icon">
+  </div>
+
+  @if (hasError && errorMessage) {
+    <span class="input-wrapper__error">{{ errorMessage }}</span>
+  }
+
+</div>

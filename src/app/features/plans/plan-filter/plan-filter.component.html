@@ -1,0 +1,66 @@
+<article class="filter">
+  <header class="filter__header" (click)="toggleExpand()">
+    <div class="filter__header-left">
+      <mat-icon class="filter__header-icon">filter_list</mat-icon>
+      <strong class="filter__title">Filtro</strong>
+      @if (hasActiveFilters) {
+        <span class="filter__active-dot"></span>
+      }
+    </div>
+    <mat-icon class="filter__chevron"
+      [class.filter__chevron--rotated]="!isExpanded">
+      expand_more
+    </mat-icon>
+  </header>
+
+  @if (isExpanded) {
+    <main @expandCollapse class="filter__body">
+      <form [formGroup]="form" (ngSubmit)="onFilter()">
+        <div class="filter__grid">
+
+          <div class="field">
+            <label class="field__label">Nome</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">card_membership</mat-icon>
+              <input class="field__input" formControlName="name"
+                placeholder="Digite o nome do plano" type="text">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Tipo</label>
+            <mat-select class="field__select" formControlName="type">
+              <mat-option [value]="null">Todos</mat-option>
+              @for (option of planTypeOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Frequência Semanal</label>
+            <mat-select class="field__select" formControlName="weeklyFrequency">
+              <mat-option [value]="null">Todas</mat-option>
+              @for (option of frequencyOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </div>
+
+        </div>
+        <hr class="filter__divider">
+        <footer class="filter__footer">
+          <button mat-stroked-button type="button" (click)="onClear()"
+            [disabled]="!hasActiveFilters">
+            <mat-icon>close</mat-icon>
+            Limpar
+          </button>
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>search</mat-icon>
+            Filtrar
+          </button>
+        </footer>
+      </form>
+    </main>
+  }
+</article>

@@ -1,21 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
 import { EnrollmentService } from '../../../core/services/enrollment/enrollment.service';
 import { StudentService } from '../../../core/services/student/student.service';
 import { Enrollment } from '../../../core/models/enrollment.model';
 import { StudentSummary } from '../../../core/models/student.model';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
+import { EnrollmentFilterComponent, EnrollmentFilter } from '../enrollment-filter/enrollment-filter.component';
 
 @Component({
   selector: 'app-enrollment-list',
@@ -23,28 +21,25 @@ import { StudentSummary } from '../../../core/models/student.model';
   imports: [
     CommonModule,
     RouterLink,
-    FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
+    MatButtonModule,
     MatSnackBarModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+    BadgeComponent,
+    AppButtonComponent,
+    EnrollmentFilterComponent
   ],
   templateUrl: './enrollment-list.component.html',
   styleUrl: './enrollment-list.component.scss'
 })
 export class EnrollmentListComponent implements OnInit {
 
-  displayedColumns = ['student', 'startDate', 'expirationDate', 'paymentDueDay', 'status', 'actions'];
   enrollments: Enrollment[] = [];
   students: StudentSummary[] = [];
-  isLoading = true;
-  searchStudentId = '';
+  isLoading = false;
+  isLoadingStudents = true;
 
   constructor(
     private enrollmentService: EnrollmentService,
@@ -56,27 +51,32 @@ export class EnrollmentListComponent implements OnInit {
     this.loadStudents();
   }
 
-  /// Carrega a lista de alunos para busca de matrículas.
-  loadStudents(): void {
-    this.isLoading = true;
+  /// Exibe mensagem de sucesso via snackbar.
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-success' });
+  }
+
+  /// Exibe mensagem de erro via snackbar.
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-error' });
+  }
+
+  /// Carrega a lista de alunos para o filtro.
+  private loadStudents(): void {
     this.studentService.getAll().subscribe({
       next: (students) => {
         this.students = students;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-        this.snackBar.open('Erro ao carregar alunos.', 'Fechar', { duration: 3000 });
+        this.isLoadingStudents = false;
       }
     });
   }
 
-  /// Busca a matrícula ativa do aluno selecionado.
-  onSearchEnrollment(studentId: string): void {
-    if (!studentId) return;
+  /// Aplica o filtro e busca a matrícula do aluno selecionado.
+  onFilterApplied(filter: EnrollmentFilter): void {
+    if (!filter.studentId) return;
 
     this.isLoading = true;
-    this.enrollmentService.getByStudentId(studentId).subscribe({
+    this.enrollmentService.getByStudentId(filter.studentId).subscribe({
       next: (enrollment) => {
         this.enrollments = [enrollment];
         this.isLoading = false;
@@ -84,20 +84,24 @@ export class EnrollmentListComponent implements OnInit {
       error: () => {
         this.enrollments = [];
         this.isLoading = false;
-        this.snackBar.open('Nenhuma matrícula ativa encontrada.', 'Fechar', { duration: 3000 });
+        this.showError('Nenhuma matrícula encontrada para este aluno.');
       }
     });
+  }
+
+  /// Limpa os filtros e a lista de matrículas.
+  onFilterCleared(): void {
+    this.enrollments = [];
   }
 
   /// Cancela uma matrícula no sistema.
   onCancel(id: string): void {
     this.enrollmentService.cancel(id).subscribe({
       next: () => {
-        this.snackBar.open('Matrícula cancelada com sucesso.', 'Fechar', { duration: 3000 });
+        this.showSuccess('Matrícula cancelada com sucesso.');
         this.enrollments = [];
-        this.searchStudentId = '';
       },
-      error: () => this.snackBar.open('Erro ao cancelar matrícula.', 'Fechar', { duration: 3000 })
+      error: () => this.showError('Erro ao cancelar matrícula.')
     });
   }
 }

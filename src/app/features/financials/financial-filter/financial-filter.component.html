@@ -1,0 +1,84 @@
+<article class="filter">
+  <header class="filter__header" (click)="toggleExpand()">
+    <div class="filter__header-left">
+      <mat-icon class="filter__header-icon">filter_list</mat-icon>
+      <strong class="filter__title">Filtro</strong>
+      @if (hasActiveFilters) {
+        <span class="filter__active-dot"></span>
+      }
+    </div>
+    <mat-icon class="filter__chevron"
+      [class.filter__chevron--rotated]="!isExpanded">
+      expand_more
+    </mat-icon>
+  </header>
+
+  @if (isExpanded) {
+    <main @expandCollapse class="filter__body">
+      <form [formGroup]="form" (ngSubmit)="onFilter()">
+        <div class="filter__grid">
+
+          <div class="field">
+            <label class="field__label">Aluno</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">person</mat-icon>
+              <input class="field__input" formControlName="studentName"
+                placeholder="Digite o nome do aluno" type="text">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Status</label>
+            <mat-select class="field__select" formControlName="status">
+              <mat-option [value]="null">Todos</mat-option>
+              @for (option of statusOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Vencimento — De</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">calendar_today</mat-icon>
+              <input class="field__input field__input--datepicker"
+                [matDatepicker]="pickerStart"
+                formControlName="dueDateStart"
+                placeholder="Data inicial">
+              <mat-datepicker-toggle class="field__datepicker-toggle"
+                [for]="pickerStart" />
+              <mat-datepicker #pickerStart />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label">Vencimento — Até</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">calendar_today</mat-icon>
+              <input class="field__input field__input--datepicker"
+                [matDatepicker]="pickerEnd"
+                formControlName="dueDateEnd"
+                placeholder="Data final">
+              <mat-datepicker-toggle class="field__datepicker-toggle"
+                [for]="pickerEnd" />
+              <mat-datepicker #pickerEnd />
+            </div>
+          </div>
+
+        </div>
+        <hr class="filter__divider">
+        <footer class="filter__footer">
+          <button mat-stroked-button type="button" (click)="onClear()"
+            [disabled]="!hasActiveFilters">
+            <mat-icon>close</mat-icon>
+            Limpar
+          </button>
+          <button mat-raised-button color="primary" type="submit">
+            <mat-icon>search</mat-icon>
+            Filtrar
+          </button>
+        </footer>
+      </form>
+    </main>
+  }
+</article>

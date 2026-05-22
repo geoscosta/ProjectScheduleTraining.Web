@@ -1,0 +1,111 @@
+// ─── Card ─────────────────────────────────────────────────────────
+@mixin card {
+  background-color: $color-white;
+  border: 1px solid $color-neutral-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+}
+
+@mixin card-hover {
+  &:hover {
+    box-shadow: $shadow-lg;
+    transition: box-shadow 0.2s ease;
+  }
+}
+
+// ─── Badge ────────────────────────────────────────────────────────
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.125rem;
+}
+
+@mixin badge-success {
+  @include badge-base;
+  background-color: $color-success-100;
+  color: $color-success-700;
+}
+
+@mixin badge-danger {
+  @include badge-base;
+  background-color: $color-danger-100;
+  color: $color-danger-700;
+}
+
+@mixin badge-warning {
+  @include badge-base;
+  background-color: $color-warning-100;
+  color: $color-warning-700;
+}
+
+@mixin badge-info {
+  @include badge-base;
+  background-color: $color-info-100;
+  color: $color-info-700;
+}
+
+@mixin badge-neutral {
+  @include badge-base;
+  background-color: $color-neutral-100;
+  color: $color-neutral-600;
+}
+
+// ─── Tabela ───────────────────────────────────────────────────────
+@mixin table-header {
+  font-weight: 600 !important;
+  color: $color-neutral-500 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid $color-neutral-200 !important;
+  padding: $space-3 $space-4;
+}
+
+@mixin table-cell {
+  color: $color-neutral-700 !important;
+  font-size: 0.875rem !important;
+  border-bottom: 1px solid $color-neutral-100 !important;
+  padding: $space-3 $space-4;
+}
+
+// ─── Form ─────────────────────────────────────────────────────────
+@mixin form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $color-neutral-700;
+  margin-bottom: $space-1;
+  display: block;
+}
+
+// ─── Skeleton ─────────────────────────────────────────────────────
+@mixin skeleton {
+  background: linear-gradient(
+    90deg,
+    $color-neutral-100 25%,
+    $color-neutral-200 50%,
+    $color-neutral-100 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: $radius-md;
+}
+
+@keyframes skeleton-loading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ─── Custom scrollbar ─────────────────────────────────────────────
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: $color-neutral-300;
+    border-radius: $radius-full;
+    &:hover { background: $color-neutral-400; }
+  }
+}

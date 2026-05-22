@@ -1,23 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
 import { SchedulingService } from '../../../core/services/scheduling/scheduling.service';
 import { ScheduleService } from '../../../core/services/schedule/schedule.service';
 import { SchedulingSummary, SchedulingStatus } from '../../../core/models/scheduling.model';
 import { ScheduleSummary } from '../../../core/models/schedule.model';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatInputModule } from '@angular/material/input';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badge.component';
+import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
+import { SchedulingFilterComponent, SchedulingFilter } from '../scheduling-filter/scheduling-filter.component';
 
 @Component({
   selector: 'app-scheduling-list',
@@ -26,29 +25,26 @@ import { MatInputModule } from '@angular/material/input';
     CommonModule,
     RouterLink,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
+    MatButtonModule,
     MatSnackBarModule,
-    MatFormFieldModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatInputModule
+    MatTooltipModule,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingSpinnerComponent,
+    BadgeComponent,
+    AppButtonComponent,
+    SchedulingFilterComponent
   ],
   templateUrl: './scheduling-list.component.html',
   styleUrl: './scheduling-list.component.scss'
 })
 export class SchedulingListComponent implements OnInit {
 
-  displayedColumns = ['student', 'schedule', 'status', 'isMakeup', 'actions'];
   schedulings: SchedulingSummary[] = [];
   schedules: ScheduleSummary[] = [];
   isLoading = false;
-  selectedDate: Date = new Date();
   selectedScheduleId = '';
   SchedulingStatus = SchedulingStatus;
 
@@ -59,12 +55,22 @@ export class SchedulingListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadSchedulesByDate();
+    this.loadSchedulesByDate(new Date());
   }
 
-  /// Carrega os horários da data selecionada.
-  loadSchedulesByDate(): void {
-    const dateStr = this.selectedDate.toISOString().split('T')[0];
+  /// Exibe mensagem de sucesso via snackbar.
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-success' });
+  }
+
+  /// Exibe mensagem de erro via snackbar.
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-error' });
+  }
+
+  /// Carrega os horários disponíveis da data informada.
+  private loadSchedulesByDate(date: Date): void {
+    const dateStr = date.toISOString().split('T')[0];
     this.scheduleService.getByDate(dateStr).subscribe({
       next: (schedules) => {
         this.schedules = schedules;
@@ -74,16 +80,21 @@ export class SchedulingListComponent implements OnInit {
     });
   }
 
-  /// Atualiza a data e recarrega os horários.
-  onDateChange(date: Date): void {
-    this.selectedDate = date;
-    this.loadSchedulesByDate();
+  /// Aplica o filtro recebido do SchedulingFilterComponent.
+  onFilterApplied(filter: SchedulingFilter): void {
+    if (filter.date) {
+      this.loadSchedulesByDate(filter.date);
+    }
+  }
+
+  /// Limpa o filtro e carrega a data atual.
+  onFilterCleared(): void {
+    this.loadSchedulesByDate(new Date());
   }
 
   /// Carrega os agendamentos do horário selecionado.
   onScheduleChange(scheduleId: string): void {
     if (!scheduleId) return;
-
     this.isLoading = true;
     this.schedulingService.getByScheduleId(scheduleId).subscribe({
       next: (schedulings) => {
@@ -92,31 +103,44 @@ export class SchedulingListComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.snackBar.open('Erro ao carregar agendamentos.', 'Fechar', { duration: 3000 });
+        this.showError('Erro ao carregar agendamentos.');
       }
     });
   }
 
-  /// Registra a presença de um aluno.
+  /// Registra a presença de um aluno na aula.
   onCheckIn(id: string): void {
     this.schedulingService.checkIn(id, {}).subscribe({
       next: () => {
-        this.snackBar.open('Presença registrada com sucesso.', 'Fechar', { duration: 3000 });
+        this.showSuccess('Presença registrada com sucesso.');
         this.onScheduleChange(this.selectedScheduleId);
       },
-      error: () => this.snackBar.open('Erro ao registrar presença.', 'Fechar', { duration: 3000 })
+      error: () => this.showError('Erro ao registrar presença.')
     });
   }
 
-  /// Cancela um agendamento.
+  /// Cancela um agendamento e libera a vaga.
   onCancel(id: string): void {
     this.schedulingService.cancel(id).subscribe({
       next: () => {
-        this.snackBar.open('Agendamento cancelado com sucesso.', 'Fechar', { duration: 3000 });
+        this.showSuccess('Agendamento cancelado com sucesso.');
         this.onScheduleChange(this.selectedScheduleId);
       },
-      error: () => this.snackBar.open('Erro ao cancelar agendamento.', 'Fechar', { duration: 3000 })
+      error: () => this.showError('Erro ao cancelar agendamento.')
     });
+  }
+
+  /// Retorna o tipo do badge baseado no status do agendamento.
+  getStatusBadgeType(status: SchedulingStatus): BadgeType {
+    const types: Record<SchedulingStatus, BadgeType> = {
+      [SchedulingStatus.Scheduled]: 'info',
+      [SchedulingStatus.Present]: 'success',
+      [SchedulingStatus.JustifiedAbsence]: 'warning',
+      [SchedulingStatus.UnjustifiedAbsence]: 'warning',
+      [SchedulingStatus.Cancelled]: 'danger',
+      [SchedulingStatus.Makeup]: 'primary'
+    };
+    return types[status];
   }
 
   /// Retorna o label do status do agendamento.
@@ -130,18 +154,5 @@ export class SchedulingListComponent implements OnInit {
       [SchedulingStatus.Makeup]: 'Reposição'
     };
     return labels[status];
-  }
-
-  /// Retorna a classe CSS do badge de status.
-  getStatusClass(status: SchedulingStatus): string {
-    const classes: Record<SchedulingStatus, string> = {
-      [SchedulingStatus.Scheduled]: 'bg-blue-100 text-blue-700',
-      [SchedulingStatus.Present]: 'bg-green-100 text-green-700',
-      [SchedulingStatus.JustifiedAbsence]: 'bg-yellow-100 text-yellow-700',
-      [SchedulingStatus.UnjustifiedAbsence]: 'bg-orange-100 text-orange-700',
-      [SchedulingStatus.Cancelled]: 'bg-red-100 text-red-700',
-      [SchedulingStatus.Makeup]: 'bg-purple-100 text-purple-700'
-    };
-    return classes[status];
   }
 }

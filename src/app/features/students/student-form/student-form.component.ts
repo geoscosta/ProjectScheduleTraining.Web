@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { StudentService } from '../../../core/services/student/student.service';
 
 @Component({
@@ -28,7 +29,8 @@ import { StudentService } from '../../../core/services/student/student.service';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './student-form.component.html',
   styleUrl: './student-form.component.scss'

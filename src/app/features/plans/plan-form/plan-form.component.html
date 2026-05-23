@@ -1,6 +1,5 @@
 <div class="space-y-5">
 
-  <!-- Título -->
   <div class="flex items-center gap-3">
     <button mat-icon-button routerLink="/plans" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
@@ -18,87 +17,112 @@
   <div class="bg-white rounded-xl border border-surface-200 overflow-hidden max-w-2xl">
 
     @if (isLoading) {
-      <div class="flex justify-center py-16">
-        <mat-spinner diameter="36" />
-      </div>
+      <app-loading-spinner />
     } @else {
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-xs font-semibold text-slate-500 uppercase
+            tracking-wide mb-4">Dados do Plano</h2>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <mat-form-field appearance="outline" class="col-span-full">
-              <mat-label>Nome do plano</mat-label>
-              <input matInput formControlName="name" placeholder="Ex: Plano Mensal 3x">
-              @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-                <mat-error>Nome é obrigatório.</mat-error>
+            <!-- Nome -->
+            <div class="field md:col-span-2">
+              <label class="field__label">
+                Nome <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">card_membership</mat-icon>
+                <input class="field__input" formControlName="name"
+                  placeholder="Ex: Plano Mensal 3x" type="text">
+              </div>
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <span class="field__error">Nome é obrigatório.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Tipo do plano</mat-label>
-              <mat-select formControlName="type">
+            <!-- Tipo -->
+            <div class="field">
+              <label class="field__label">
+                Tipo <span class="field__required">*</span>
+              </label>
+              <mat-select class="field__select" formControlName="type">
                 @for (type of planTypes; track type.value) {
                   <mat-option [value]="type.value">{{ type.label }}</mat-option>
                 }
               </mat-select>
-              @if (form.get('type')?.hasError('required') && form.get('type')?.touched) {
-                <mat-error>Tipo é obrigatório.</mat-error>
+              @if (form.get('type')?.invalid && form.get('type')?.touched) {
+                <span class="field__error">Tipo é obrigatório.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Frequência semanal</mat-label>
-              <mat-select formControlName="weeklyFrequency">
+            <!-- Frequência -->
+            <div class="field">
+              <label class="field__label">
+                Frequência Semanal <span class="field__required">*</span>
+              </label>
+              <mat-select class="field__select" formControlName="weeklyFrequency">
                 @for (freq of weeklyFrequencies; track freq.value) {
                   <mat-option [value]="freq.value">{{ freq.label }}</mat-option>
                 }
               </mat-select>
-              @if (form.get('weeklyFrequency')?.hasError('required') && form.get('weeklyFrequency')?.touched) {
-                <mat-error>Frequência é obrigatória.</mat-error>
+              @if (form.get('weeklyFrequency')?.invalid && form.get('weeklyFrequency')?.touched) {
+                <span class="field__error">Frequência é obrigatória.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Duração (meses)</mat-label>
-              <input matInput type="number" formControlName="durationMonths" min="1">
-              @if (form.get('durationMonths')?.hasError('required') && form.get('durationMonths')?.touched) {
-                <mat-error>Duração é obrigatória.</mat-error>
+            <!-- Duração -->
+            <div class="field">
+              <label class="field__label">
+                Duração (meses) <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">schedule</mat-icon>
+                <input class="field__input" formControlName="durationMonths"
+                  placeholder="1" type="number" min="1">
+              </div>
+              @if (form.get('durationMonths')?.invalid && form.get('durationMonths')?.touched) {
+                <span class="field__error">Duração deve ser maior que zero.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Valor (R$)</mat-label>
-              <span matPrefix class="text-slate-500 mr-1">R$</span>
-              <input matInput type="number" formControlName="price" min="0.01" step="0.01">
-              @if (form.get('price')?.hasError('required') && form.get('price')?.touched) {
-                <mat-error>Valor é obrigatório.</mat-error>
+            <!-- Valor -->
+            <div class="field">
+              <label class="field__label">
+                Valor (R$) <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">attach_money</mat-icon>
+                <input class="field__input" formControlName="price"
+                  placeholder="0,00" type="number" min="0.01" step="0.01">
+              </div>
+              @if (form.get('price')?.invalid && form.get('price')?.touched) {
+                <span class="field__error">Valor deve ser maior que zero.</span>
               }
-              @if (form.get('price')?.hasError('min') && form.get('price')?.touched) {
-                <mat-error>Valor deve ser maior que zero.</mat-error>
-              }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline" class="col-span-full">
-              <mat-label>Descrição</mat-label>
-              <textarea matInput formControlName="description" rows="3"
-                placeholder="Descrição detalhada do plano...">
-              </textarea>
-            </mat-form-field>
+            <!-- Descrição -->
+            <div class="field md:col-span-2">
+              <label class="field__label">Descrição</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon" style="top: 12px; align-self: flex-start;">
+                  notes
+                </mat-icon>
+                <textarea class="field__textarea" formControlName="description"
+                  placeholder="Descrição detalhada do plano..."></textarea>
+              </div>
+            </div>
 
           </div>
         </div>
 
-        <!-- Ações -->
         <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
           <button mat-stroked-button type="button" (click)="onCancel()">
             Cancelar
           </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
+          <button mat-raised-button color="primary" type="submit"
             [disabled]="form.invalid || isSaving">
             @if (isSaving) {
               <mat-spinner diameter="18" class="inline-block mr-2" />

@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { PlanService } from '../../../core/services/plan/plan.service';
 import { PlanType, WeeklyFrequency } from '../../../core/models/plan.model';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-plan-form',
@@ -27,7 +28,8 @@ import { PlanType, WeeklyFrequency } from '../../../core/models/plan.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatSelectModule
+    MatSelectModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './plan-form.component.html',
   styleUrl: './plan-form.component.scss'

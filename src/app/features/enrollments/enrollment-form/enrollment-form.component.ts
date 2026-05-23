@@ -15,6 +15,7 @@ import { StudentService } from '../../../core/services/student/student.service';
 import { PlanService } from '../../../core/services/plan/plan.service';
 import { StudentSummary } from '../../../core/models/student.model';
 import { PlanSummary } from '../../../core/models/plan.model';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-enrollment-form',
@@ -30,7 +31,8 @@ import { PlanSummary } from '../../../core/models/plan.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatSelectModule
+    MatSelectModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './enrollment-form.component.html',
   styleUrl: './enrollment-form.component.scss'

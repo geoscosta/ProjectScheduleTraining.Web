@@ -15,6 +15,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { FinancialService } from '../../../core/services/financial/financial.service';
 import { StudentService } from '../../../core/services/student/student.service';
 import { StudentSummary } from '../../../core/models/student.model';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-financial-form',
@@ -32,7 +33,8 @@ import { StudentSummary } from '../../../core/models/student.model';
     MatSnackBarModule,
     MatSelectModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './financial-form.component.html',
   styleUrl: './financial-form.component.scss'

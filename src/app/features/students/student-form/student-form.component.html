@@ -18,82 +18,143 @@
   <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
 
     @if (isLoading) {
-      <div class="flex justify-center py-16">
-        <mat-spinner diameter="36" />
-      </div>
+      <app-loading-spinner />
     } @else {
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
         <!-- Seção dados pessoais -->
         <div class="px-6 py-5 border-b border-surface-100">
-          <h2 class="text-sm font-semibold text-slate-700 mb-4">Dados Pessoais</h2>
+          <h2 class="text-xs font-semibold text-slate-500 uppercase
+            tracking-wide mb-4">Dados Pessoais</h2>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <mat-form-field appearance="outline" class="col-span-full">
-              <mat-label>Nome completo</mat-label>
-              <input matInput formControlName="name" placeholder="Nome do aluno">
-              @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-                <mat-error>Nome é obrigatório.</mat-error>
+            <!-- Nome -->
+            <div class="field md:col-span-2">
+              <label class="field__label">
+                Nome completo <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">person</mat-icon>
+                <input class="field__input"
+                  formControlName="name"
+                  placeholder="Nome completo do aluno"
+                  type="text">
+              </div>
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <span class="field__error">Nome é obrigatório.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>CPF</mat-label>
-              <input matInput formControlName="cpf" placeholder="000.000.000-00">
-              @if (form.get('cpf')?.hasError('required') && form.get('cpf')?.touched) {
-                <mat-error>CPF é obrigatório.</mat-error>
+            <!-- CPF -->
+            <div class="field">
+              <label class="field__label">
+                CPF <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">badge</mat-icon>
+                <input class="field__input"
+                  formControlName="cpf"
+                  placeholder="000.000.000-00"
+                  type="text"
+                  [attr.disabled]="isEditMode ? '' : null">
+              </div>
+              @if (form.get('cpf')?.invalid && form.get('cpf')?.touched) {
+                <span class="field__error">CPF é obrigatório.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Data de nascimento</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="birthDate">
-              <mat-datepicker-toggle matIconSuffix [for]="picker" />
-              <mat-datepicker #picker />
-              @if (form.get('birthDate')?.hasError('required') && form.get('birthDate')?.touched) {
-                <mat-error>Data de nascimento é obrigatória.</mat-error>
+            <!-- Data de nascimento -->
+            <div class="field">
+              <label class="field__label">
+                Data de nascimento <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">cake</mat-icon>
+                <input class="field__input field__input--datepicker"
+                  [matDatepicker]="picker"
+                  formControlName="birthDate"
+                  placeholder="dd/mm/aaaa">
+                <mat-datepicker-toggle class="field__datepicker-toggle"
+                  [for]="picker" />
+                <mat-datepicker #picker />
+              </div>
+              @if (form.get('birthDate')?.invalid && form.get('birthDate')?.touched) {
+                <span class="field__error">Data de nascimento é obrigatória.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>E-mail</mat-label>
-              <input matInput type="email" formControlName="email" placeholder="email@exemplo.com">
+            <!-- E-mail -->
+            <div class="field">
+              <label class="field__label">
+                E-mail <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">email</mat-icon>
+                <input class="field__input"
+                  formControlName="email"
+                  placeholder="email@exemplo.com"
+                  type="email">
+              </div>
               @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-                <mat-error>E-mail é obrigatório.</mat-error>
+                <span class="field__error">E-mail é obrigatório.</span>
               }
               @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-                <mat-error>E-mail inválido.</mat-error>
+                <span class="field__error">E-mail inválido.</span>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Telefone</mat-label>
-              <input matInput formControlName="phone" placeholder="(00) 00000-0000">
-              @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
-                <mat-error>Telefone é obrigatório.</mat-error>
+            <!-- Telefone -->
+            <div class="field">
+              <label class="field__label">
+                Telefone <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">phone</mat-icon>
+                <input class="field__input"
+                  formControlName="phone"
+                  placeholder="(00) 00000-0000"
+                  type="text">
+              </div>
+              @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+                <span class="field__error">Telefone é obrigatório.</span>
               }
-            </mat-form-field>
+            </div>
 
           </div>
         </div>
 
         <!-- Seção dados complementares -->
         <div class="px-6 py-5 border-b border-surface-100">
-          <h2 class="text-sm font-semibold text-slate-700 mb-4">Dados Complementares</h2>
+          <h2 class="text-xs font-semibold text-slate-500 uppercase
+            tracking-wide mb-4">Dados Complementares</h2>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <mat-form-field appearance="outline" class="col-span-full">
-              <mat-label>Endereço</mat-label>
-              <input matInput formControlName="address"
-                placeholder="Rua, número, bairro, cidade">
-            </mat-form-field>
+            <!-- Endereço -->
+            <div class="field md:col-span-2">
+              <label class="field__label">Endereço</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">location_on</mat-icon>
+                <input class="field__input"
+                  formControlName="address"
+                  placeholder="Rua, número, bairro, cidade"
+                  type="text">
+              </div>
+            </div>
 
-            <mat-form-field appearance="outline" class="col-span-full">
-              <mat-label>Contato de emergência</mat-label>
-              <input matInput formControlName="emergencyContact"
-                placeholder="Nome — (00) 00000-0000">
-            </mat-form-field>
+            <!-- Contato de emergência -->
+            <div class="field md:col-span-2">
+              <label class="field__label">Contato de emergência</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">contact_phone</mat-icon>
+                <input class="field__input"
+                  formControlName="emergencyContact"
+                  placeholder="Nome — (00) 00000-0000"
+                  type="text">
+              </div>
+            </div>
 
           </div>
         </div>
@@ -103,10 +164,7 @@
           <button mat-stroked-button type="button" (click)="onCancel()">
             Cancelar
           </button>
-          <button
-            mat-raised-button
-            color="primary"
-            type="submit"
+          <button mat-raised-button color="primary" type="submit"
             [disabled]="form.invalid || isSaving">
             @if (isSaving) {
               <mat-spinner diameter="18" class="inline-block mr-2" />

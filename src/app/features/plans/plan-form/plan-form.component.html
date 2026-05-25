@@ -28,23 +28,8 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <!-- Nome -->
-            <div class="field md:col-span-2">
-              <label class="field__label">
-                Nome <span class="field__required">*</span>
-              </label>
-              <div class="field__input-wrapper">
-                <mat-icon class="field__icon">card_membership</mat-icon>
-                <input class="field__input" formControlName="name"
-                  placeholder="Ex: Plano Mensal 3x" type="text">
-              </div>
-              @if (form.get('name')?.invalid && form.get('name')?.touched) {
-                <span class="field__error">Nome é obrigatório.</span>
-              }
-            </div>
-
             <!-- Tipo -->
-            <div class="field">
+            <div class="field md:col-span-2">
               <label class="field__label">
                 Tipo <span class="field__required">*</span>
               </label>
@@ -55,6 +40,55 @@
               </mat-select>
               @if (form.get('type')?.invalid && form.get('type')?.touched) {
                 <span class="field__error">Tipo é obrigatório.</span>
+              }
+            </div>
+
+            <!-- Duração automática -->
+            @if (form.get('type')?.value !== null) {
+              <div class="field md:col-span-2">
+                <div class="flex items-center gap-2 bg-indigo-50 border
+                  border-indigo-100 rounded-lg px-4 py-3">
+                  <mat-icon class="text-indigo-500 text-base flex-shrink-0">
+                    schedule
+                  </mat-icon>
+                  <p class="text-sm text-indigo-700">
+                    Duração definida automaticamente:
+                    <strong>{{ getDurationLabel(form.get('type')?.value) }}</strong>
+                  </p>
+                </div>
+              </div>
+            }
+
+            <!-- Sugestões de nome -->
+            @if (nameSuggestions.length > 0 && !isEditMode) {
+              <div class="field md:col-span-2">
+                <label class="field__label">Sugestões de nome</label>
+                <div class="flex flex-wrap gap-2">
+                  @for (suggestion of nameSuggestions; track suggestion) {
+                    <button
+                      type="button"
+                      class="suggestion-chip"
+                      (click)="selectNameSuggestion(suggestion)">
+                      {{ suggestion }}
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Nome -->
+            <div class="field md:col-span-2">
+              <label class="field__label">
+                Nome <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">card_membership</mat-icon>
+                <input class="field__input" formControlName="name"
+                  placeholder="Selecione uma sugestão ou digite o nome"
+                  type="text">
+              </div>
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <span class="field__error">Nome é obrigatório.</span>
               }
             </div>
 
@@ -70,21 +104,6 @@
               </mat-select>
               @if (form.get('weeklyFrequency')?.invalid && form.get('weeklyFrequency')?.touched) {
                 <span class="field__error">Frequência é obrigatória.</span>
-              }
-            </div>
-
-            <!-- Duração -->
-            <div class="field">
-              <label class="field__label">
-                Duração (meses) <span class="field__required">*</span>
-              </label>
-              <div class="field__input-wrapper">
-                <mat-icon class="field__icon">schedule</mat-icon>
-                <input class="field__input" formControlName="durationMonths"
-                  placeholder="1" type="number" min="1">
-              </div>
-              @if (form.get('durationMonths')?.invalid && form.get('durationMonths')?.touched) {
-                <span class="field__error">Duração deve ser maior que zero.</span>
               }
             </div>
 

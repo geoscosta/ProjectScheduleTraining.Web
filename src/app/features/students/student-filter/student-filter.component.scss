@@ -178,4 +178,18 @@
       border: none;
     }
   }
+
+  // ─── Autocomplete ─────────────────────────────────────────────────
+.autocomplete-option {
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+
+  &__icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: $color-neutral-400;
+  }
+}
 }

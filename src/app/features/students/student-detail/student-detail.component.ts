@@ -13,7 +13,6 @@ import { Student, StudentStatus } from '../../../core/models/student.model';
 import { Enrollment } from '../../../core/models/enrollment.model';
 import { FinancialSummary, FinancialStatus } from '../../../core/models/financial.model';
 import { SchedulingSummary, SchedulingStatus } from '../../../core/models/scheduling.model';
-import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badge.component';
@@ -29,7 +28,6 @@ import { AppButtonComponent } from '../../../shared/components/app-button/app-bu
     MatButtonModule,
     MatTabsModule,
     MatSnackBarModule,
-    PageHeaderComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
     BadgeComponent,

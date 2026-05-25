@@ -1,13 +1,14 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { StudentStatus } from '../../../core/models/student.model';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { StudentStatus, StudentSummary } from '../../../core/models/student.model';
+import { StudentService } from '../../../core/services/student/student.service';
 
 /// Modelo de filtro de alunos.
 export interface StudentFilter {
@@ -24,9 +25,8 @@ export interface StudentFilter {
     ReactiveFormsModule,
     MatIconModule,
     MatButtonModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    MatAutocompleteModule
   ],
   templateUrl: './student-filter.component.html',
   styleUrl: './student-filter.component.scss',
@@ -43,7 +43,7 @@ export interface StudentFilter {
     ])
   ]
 })
-export class StudentFilterComponent implements OnInit {
+export class StudentFilterComponent implements OnInit, OnDestroy {
 
   /// Emite o filtro preenchido ao clicar em Filtrar.
   @Output() filterApplied = new EventEmitter<StudentFilter>();
@@ -56,6 +56,18 @@ export class StudentFilterComponent implements OnInit {
 
   form!: FormGroup;
 
+  /// Lista completa de alunos para o autocomplete.
+  private allStudents: StudentSummary[] = [];
+
+  /// Sugestões filtradas para o campo nome.
+  nameSuggestions: string[] = [];
+
+  /// Sugestões filtradas para o campo e-mail.
+  emailSuggestions: string[] = [];
+
+  /// Subject para cancelar subscriptions ao destruir o componente.
+  private destroy$ = new Subject<void>();
+
   /// Opções de status disponíveis para o select.
   statusOptions = [
     { value: StudentStatus.Active, label: 'Ativo' },
@@ -63,7 +75,10 @@ export class StudentFilterComponent implements OnInit {
     { value: StudentStatus.Blocked, label: 'Bloqueado' }
   ];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private studentService: StudentService
+  ) {}
 
   ngOnInit(): void {
     /// Inicializa o formulário com os campos do filtro de alunos.
@@ -72,6 +87,61 @@ export class StudentFilterComponent implements OnInit {
       email: [''],
       status: [null]
     });
+
+    /// Carrega a lista de alunos para o autocomplete.
+    this.loadStudents();
+
+    /// Monitora o campo nome e filtra sugestões após 3 caracteres.
+    this.form.get('name')!.valueChanges.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      this.nameSuggestions = this.filterNameSuggestions(value);
+    });
+
+    /// Monitora o campo e-mail e filtra sugestões após 3 caracteres.
+    this.form.get('email')!.valueChanges.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      this.emailSuggestions = this.filterEmailSuggestions(value);
+    });
+  }
+
+  ngOnDestroy(): void {
+    /// Cancela todas as subscriptions ativas ao destruir o componente.
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /// Carrega todos os alunos para uso no autocomplete.
+  private loadStudents(): void {
+    this.studentService.getAll().subscribe({
+      next: (students) => this.allStudents = students,
+      error: () => this.allStudents = []
+    });
+  }
+
+  /// Filtra sugestões de nome a partir do 3º caractere digitado.
+  private filterNameSuggestions(value: string): string[] {
+    if (!value || value.length < 3) return [];
+    const term = value.toLowerCase();
+    return this.allStudents
+      .map(s => s.name)
+      .filter(name => name.toLowerCase().includes(term))
+      .slice(0, 5);
+  }
+
+  /// Filtra sugestões de e-mail a partir do 3º caractere digitado.
+  private filterEmailSuggestions(value: string): string[] {
+    if (!value || value.length < 3) return [];
+    const term = value.toLowerCase();
+    return this.allStudents
+      .map(s => s.email)
+      .filter(email => email.toLowerCase().includes(term))
+      .slice(0, 5);
   }
 
   /// Alterna entre expandido e recolhido.
@@ -94,6 +164,8 @@ export class StudentFilterComponent implements OnInit {
   /// Limpa todos os campos e emite o evento de limpeza.
   onClear(): void {
     this.form.reset({ name: '', email: '', status: null });
+    this.nameSuggestions = [];
+    this.emailSuggestions = [];
     this.filterCleared.emit();
   }
 }

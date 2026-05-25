@@ -1,6 +1,6 @@
 <article class="filter">
 
-  <!-- Header -->
+  <!-- Header clicável -->
   <header class="filter__header" (click)="toggleExpand()">
     <div class="filter__header-left">
       <mat-icon class="filter__header-icon">filter_list</mat-icon>
@@ -15,14 +15,13 @@
     </mat-icon>
   </header>
 
-  <!-- Painel animado -->
   @if (isExpanded) {
     <main @expandCollapse class="filter__body">
       <form [formGroup]="form" (ngSubmit)="onFilter()">
 
         <div class="filter__grid">
 
-          <!-- Nome -->
+          <!-- Nome com autocomplete -->
           <div class="field">
             <label class="field__label">Nome</label>
             <div class="field__input-wrapper">
@@ -31,11 +30,24 @@
                 class="field__input"
                 formControlName="name"
                 placeholder="Digite para buscar pelo nome"
-                type="text">
+                type="text"
+                [matAutocomplete]="autoName">
+              <mat-autocomplete
+                #autoName="matAutocomplete"
+                class="filter__autocomplete">
+                @for (suggestion of nameSuggestions; track suggestion) {
+                  <mat-option [value]="suggestion">
+                    <div class="autocomplete-option">
+                      <mat-icon class="autocomplete-option__icon">person</mat-icon>
+                      <span>{{ suggestion }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
             </div>
           </div>
 
-          <!-- E-mail -->
+          <!-- E-mail com autocomplete -->
           <div class="field">
             <label class="field__label">E-mail</label>
             <div class="field__input-wrapper">
@@ -44,16 +56,27 @@
                 class="field__input"
                 formControlName="email"
                 placeholder="Digite para buscar pelo e-mail"
-                type="email">
+                type="email"
+                [matAutocomplete]="autoEmail">
+              <mat-autocomplete
+                #autoEmail="matAutocomplete"
+                class="filter__autocomplete">
+                @for (suggestion of emailSuggestions; track suggestion) {
+                  <mat-option [value]="suggestion">
+                    <div class="autocomplete-option">
+                      <mat-icon class="autocomplete-option__icon">email</mat-icon>
+                      <span>{{ suggestion }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
             </div>
           </div>
 
           <!-- Status -->
           <div class="field">
             <label class="field__label">Status</label>
-            <mat-select
-              class="field__select"
-              formControlName="status">
+            <mat-select class="field__select" formControlName="status">
               <mat-option [value]="null">Todos</mat-option>
               @for (option of statusOptions; track option.value) {
                 <mat-option [value]="option.value">

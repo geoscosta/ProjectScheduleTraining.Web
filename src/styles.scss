@@ -86,5 +86,33 @@ html, body {
   overflow: hidden;
 }
 
-.snack-success .mdc-snackbar__surface { background: $color-success-600 !important; }
-.snack-error .mdc-snackbar__surface { background: $color-danger-600 !important; }
+//.snack-success .mdc-snackbar__surface { background: $color-success-600 !important; }
+//.snack-error .mdc-snackbar__surface { background: $color-danger-600 !important; }
+
+// ─── Snackbar variantes ───────────────────────────────────────────
+.snack-success .mdc-snackbar__surface {
+  background: $color-success-600 !important;
+}
+
+.snack-error .mdc-snackbar__surface {
+  background: $color-danger-600 !important;
+}
+
+.snack-warning .mdc-snackbar__surface {
+  background: $color-warning-600 !important;
+}
+
+.snack-info .mdc-snackbar__surface {
+  background: $color-info-600 !important;
+}
+
+// ─── Snackbar posicionamento ──────────────────────────────────────
+.mat-mdc-snack-bar-container {
+  margin-top: 16px !important;
+}
+
+// ─── Confirm Dialog ───────────────────────────────────────────────
+.confirm-dialog .mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  overflow: hidden;
+}

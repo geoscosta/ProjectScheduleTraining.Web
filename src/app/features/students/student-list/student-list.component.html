@@ -14,8 +14,8 @@
 
   <!-- Filtro -->
   <app-student-filter
-  (filterApplied)="onFilterApplied($event)"
-  (filterCleared)="onFilterCleared()" />
+    (filterApplied)="onFilterApplied($event)"
+    (filterCleared)="onFilterCleared()" />
 
   <!-- Card principal -->
   <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
@@ -36,52 +36,53 @@
 
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Nome</th>
-            <td mat-cell *matCellDef="let student">
+            <td mat-cell *matCellDef="let s">
               <div class="flex items-center gap-3 py-1">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center
+                  justify-center flex-shrink-0">
                   <span class="text-indigo-600 text-xs font-semibold">
-                    {{ student.name.charAt(0).toUpperCase() }}
+                    {{ s.name.charAt(0).toUpperCase() }}
                   </span>
                 </div>
-                <span class="font-medium text-slate-800">{{ student.name }}</span>
+                <span class="font-medium text-slate-800">{{ s.name }}</span>
               </div>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef>E-mail</th>
-            <td mat-cell *matCellDef="let student">
-              <span class="text-slate-600">{{ student.email }}</span>
+            <td mat-cell *matCellDef="let s">
+              <span class="text-slate-600">{{ s.email }}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="phone">
             <th mat-header-cell *matHeaderCellDef>Telefone</th>
-            <td mat-cell *matCellDef="let student">
-              <span class="text-slate-600">{{ student.phone }}</span>
+            <td mat-cell *matCellDef="let s">
+              <span class="text-slate-600">{{ s.phone }}</span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let student">
+            <td mat-cell *matCellDef="let s">
               <app-badge
-                [label]="getStatusLabel(student.status)"
-                [type]="getStatusBadgeType(student.status)" />
+                [label]="getStatusLabel(s.status)"
+                [type]="getStatusBadgeType(s.status)" />
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let student">
+            <td mat-cell *matCellDef="let s">
               <div class="flex items-center gap-1 justify-end">
-                <button mat-icon-button [routerLink]="[student.id]"
+                <button mat-icon-button [routerLink]="[s.id]"
                   matTooltip="Ver detalhes">
                   <mat-icon class="text-slate-400 hover:text-blue-500 text-lg">
                     visibility
                   </mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="[student.id, 'edit']"
+                <button mat-icon-button [routerLink]="[s.id, 'edit']"
                   matTooltip="Editar">
                   <mat-icon class="text-slate-400 hover:text-slate-600 text-lg">
                     edit
@@ -92,19 +93,19 @@
                   <mat-icon class="text-slate-400 text-lg">more_vert</mat-icon>
                 </button>
                 <mat-menu #actionsMenu="matMenu">
-                  @if (student.status === StudentStatus.Active) {
-                    <button mat-menu-item (click)="onBlock(student.id)">
+                  @if (s.status === StudentStatus.Active) {
+                    <button mat-menu-item (click)="onBlock(s.id, s.name)">
                       <mat-icon class="text-orange-500">block</mat-icon>
                       <span>Bloquear</span>
                     </button>
                   }
-                  @if (student.status === StudentStatus.Blocked) {
-                    <button mat-menu-item (click)="onUnblock(student.id)">
+                  @if (s.status === StudentStatus.Blocked) {
+                    <button mat-menu-item (click)="onUnblock(s.id, s.name)">
                       <mat-icon class="text-green-500">check_circle</mat-icon>
                       <span>Desbloquear</span>
                     </button>
                   }
-                  <button mat-menu-item (click)="onDeactivate(student.id)">
+                  <button mat-menu-item (click)="onDeactivate(s.id, s.name)">
                     <mat-icon class="text-red-500">delete_outline</mat-icon>
                     <span class="text-red-600">Inativar</span>
                   </button>
@@ -122,50 +123,51 @@
 
       <!-- Cards mobile -->
       <div class="md:hidden divide-y divide-surface-100">
-        @for (student of pagedStudents; track student.id) {
+        @for (s of pagedStudents; track s.id) {
           <div class="px-5 py-4">
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center
+                  justify-center flex-shrink-0">
                   <span class="text-indigo-600 text-sm font-semibold">
-                    {{ student.name.charAt(0).toUpperCase() }}
+                    {{ s.name.charAt(0).toUpperCase() }}
                   </span>
                 </div>
                 <div class="min-w-0">
-                  <p class="font-medium text-slate-800 truncate">{{ student.name }}</p>
-                  <p class="text-xs text-slate-500 truncate">{{ student.email }}</p>
-                  <p class="text-xs text-slate-500">{{ student.phone }}</p>
+                  <p class="font-medium text-slate-800 truncate">{{ s.name }}</p>
+                  <p class="text-xs text-slate-500 truncate">{{ s.email }}</p>
+                  <p class="text-xs text-slate-500">{{ s.phone }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <app-badge
-                  [label]="getStatusLabel(student.status)"
-                  [type]="getStatusBadgeType(student.status)" />
+                  [label]="getStatusLabel(s.status)"
+                  [type]="getStatusBadgeType(s.status)" />
                 <button mat-icon-button [matMenuTriggerFor]="mobileMenu">
                   <mat-icon class="text-slate-400 text-lg">more_vert</mat-icon>
                 </button>
                 <mat-menu #mobileMenu="matMenu">
-                  <button mat-menu-item [routerLink]="[student.id]">
+                  <button mat-menu-item [routerLink]="[s.id]">
                     <mat-icon class="text-blue-500">visibility</mat-icon>
                     <span>Ver detalhes</span>
                   </button>
-                  <button mat-menu-item [routerLink]="[student.id, 'edit']">
+                  <button mat-menu-item [routerLink]="[s.id, 'edit']">
                     <mat-icon class="text-slate-500">edit</mat-icon>
                     <span>Editar</span>
                   </button>
-                  @if (student.status === StudentStatus.Active) {
-                    <button mat-menu-item (click)="onBlock(student.id)">
+                  @if (s.status === StudentStatus.Active) {
+                    <button mat-menu-item (click)="onBlock(s.id, s.name)">
                       <mat-icon class="text-orange-500">block</mat-icon>
                       <span>Bloquear</span>
                     </button>
                   }
-                  @if (student.status === StudentStatus.Blocked) {
-                    <button mat-menu-item (click)="onUnblock(student.id)">
+                  @if (s.status === StudentStatus.Blocked) {
+                    <button mat-menu-item (click)="onUnblock(s.id, s.name)">
                       <mat-icon class="text-green-500">check_circle</mat-icon>
                       <span>Desbloquear</span>
                     </button>
                   }
-                  <button mat-menu-item (click)="onDeactivate(student.id)">
+                  <button mat-menu-item (click)="onDeactivate(s.id, s.name)">
                     <mat-icon class="text-red-500">delete_outline</mat-icon>
                     <span class="text-red-600">Inativar</span>
                   </button>

@@ -42,3 +42,15 @@ export enum FinancialStatus {
   Cancelled = 4,
   Exempt = 5
 }
+
+/// Modelo de resposta do relatório financeiro mensal.
+export interface FinancialReport {
+  month: number;
+  year: number;
+  totalReceived: number;
+  totalPending: number;
+  totalOverdue: number;
+  countReceived: number;
+  countPending: number;
+  countOverdue: number;
+}

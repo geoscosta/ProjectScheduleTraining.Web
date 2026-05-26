@@ -6,12 +6,13 @@ import { StudentService } from '../../core/services/student/student.service';
 import { FinancialService } from '../../core/services/financial/financial.service';
 import { ScheduleService } from '../../core/services/schedule/schedule.service';
 import { StudentSummary } from '../../core/models/student.model';
-import { FinancialSummary } from '../../core/models/financial.model';
+import { FinancialSummary, FinancialReport } from '../../core/models/financial.model';
 import { ScheduleSummary, ScheduleStatus } from '../../core/models/schedule.model';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { BadgeComponent } from '../../shared/components/badge/badge.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,8 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
     PageHeaderComponent,
     StatCardComponent,
     EmptyStateComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    BadgeComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -37,6 +39,7 @@ export class DashboardComponent implements OnInit {
   activeStudents: StudentSummary[] = [];
   overdueFinancials: FinancialSummary[] = [];
   todaySchedules: ScheduleSummary[] = [];
+  financialReport: FinancialReport | null = null;
 
   constructor(
     private studentService: StudentService,
@@ -49,11 +52,12 @@ export class DashboardComponent implements OnInit {
   }
 
   /// Carrega todos os dados do dashboard em paralelo.
-  /// Utiliza três requisições simultâneas para melhor performance.
   private loadDashboardData(): void {
     const today = new Date().toISOString().split('T')[0];
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
     let loadedCount = 0;
-    const totalRequests = 3;
+    const totalRequests = 4;
 
     /// Marca o loading como concluído após todas as requisições finalizarem.
     const checkComplete = () => {
@@ -66,7 +70,7 @@ export class DashboardComponent implements OnInit {
     /// Carrega os alunos ativos do sistema.
     this.studentService.getAll().subscribe({
       next: (students) => {
-        this.activeStudents = students;
+        this.activeStudents = students.filter(s => s.status === 1);
         checkComplete();
       },
       error: () => checkComplete()
@@ -81,10 +85,19 @@ export class DashboardComponent implements OnInit {
       error: () => checkComplete()
     });
 
-    /// Carrega os horários do dia atual para exibição na agenda.
+    /// Carrega os horários do dia atual.
     this.scheduleService.getByDate(today).subscribe({
       next: (schedules) => {
         this.todaySchedules = schedules;
+        checkComplete();
+      },
+      error: () => checkComplete()
+    });
+
+    /// Carrega o relatório financeiro do mês atual.
+    this.financialService.getReport(currentMonth, currentYear).subscribe({
+      next: (report) => {
+        this.financialReport = report;
         checkComplete();
       },
       error: () => checkComplete()
@@ -116,5 +129,10 @@ export class DashboardComponent implements OnInit {
       [ScheduleStatus.Cancelled]: 'bg-gray-100 text-gray-700'
     };
     return classes[status];
+  }
+
+  /// Retorna o nome do mês atual em português.
+  get currentMonthName(): string {
+    return new Date().toLocaleDateString('pt-BR', { month: 'long' });
   }
 }

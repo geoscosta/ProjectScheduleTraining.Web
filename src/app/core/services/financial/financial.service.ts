@@ -6,14 +6,14 @@ import {
   Financial,
   FinancialSummary,
   CreateFinancialRequest,
-  RegisterPaymentRequest
+  RegisterPaymentRequest,
+  FinancialReport,
 } from '../../models/financial.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FinancialService {
-
   private readonly apiUrl = `${environment.apiUrl}/financials`;
 
   constructor(private http: HttpClient) {}
@@ -25,7 +25,9 @@ export class FinancialService {
 
   /// Retorna todas as cobranças de um aluno.
   getByStudentId(studentId: string): Observable<FinancialSummary[]> {
-    return this.http.get<FinancialSummary[]>(`${this.apiUrl}/student/${studentId}`);
+    return this.http.get<FinancialSummary[]>(
+      `${this.apiUrl}/student/${studentId}`,
+    );
   }
 
   /// Retorna todas as cobranças vencidas do sistema.
@@ -40,12 +42,22 @@ export class FinancialService {
   }
 
   /// Registra o pagamento de uma cobrança financeira.
-  registerPayment(id: string, request: RegisterPaymentRequest): Observable<Financial> {
+  registerPayment(
+    id: string,
+    request: RegisterPaymentRequest,
+  ): Observable<Financial> {
     return this.http.patch<Financial>(`${this.apiUrl}/${id}/payment`, request);
   }
 
   /// Cancela uma cobrança financeira no sistema.
   cancel(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /// Retorna o relatório financeiro consolidado de um mês específico.
+  getReport(month: number, year: number): Observable<FinancialReport> {
+    return this.http.get<FinancialReport>(
+      `${this.apiUrl}/report?month=${month}&year=${year}`,
+    );
   }
 }

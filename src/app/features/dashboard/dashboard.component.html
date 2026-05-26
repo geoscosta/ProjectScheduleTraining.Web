@@ -1,19 +1,17 @@
 <div class="space-y-5">
 
-  <!-- Cabeçalho da página -->
+  <!-- Cabeçalho -->
   <app-page-header
     title="Dashboard"
-    [subtitle]="today | date:'EEEE, d \'de\' MMMM':'':'pt-BR'">
+    [subtitle]="'Bem-vindo! Hoje é ' + (today | date:'EEEE, d \'de\' MMMM':'':'pt-BR')">
   </app-page-header>
 
-  <!-- Loading global -->
   @if (isLoading) {
     <app-loading-spinner [diameter]="40" />
   } @else {
 
-    <!-- Cards de indicadores -->
+    <!-- Cards indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
       <app-stat-card
         title="Alunos Ativos"
         [value]="activeStudents.length"
@@ -41,8 +39,89 @@
         icon="warning_amber"
         color="red"
         routerLink="/financials" />
-
     </div>
+
+    <!-- Relatório financeiro do mês -->
+    @if (financialReport) {
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+        <div class="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-700">
+              Resumo Financeiro
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+              {{ currentMonthName | titlecase }} de {{ financialReport.year }}
+            </p>
+          </div>
+          <a routerLink="/financials"
+            class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+            Ver detalhes →
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-surface-100">
+
+          <!-- Recebido -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
+                <mat-icon class="text-green-500 text-base">check_circle</mat-icon>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Recebido</p>
+                <p class="text-lg font-bold text-green-600">
+                  R$ {{ financialReport.totalReceived | number:'1.2-2' }}
+                </p>
+                <p class="text-xs text-slate-400">
+                  {{ financialReport.countReceived }}
+                  {{ financialReport.countReceived === 1 ? 'cobrança' : 'cobranças' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pendente -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-yellow-50 flex items-center justify-center">
+                <mat-icon class="text-yellow-500 text-base">schedule</mat-icon>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Pendente</p>
+                <p class="text-lg font-bold text-yellow-600">
+                  R$ {{ financialReport.totalPending | number:'1.2-2' }}
+                </p>
+                <p class="text-xs text-slate-400">
+                  {{ financialReport.countPending }}
+                  {{ financialReport.countPending === 1 ? 'cobrança' : 'cobranças' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vencido -->
+          <div class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                <mat-icon class="text-red-500 text-base">warning_amber</mat-icon>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 font-medium">Vencido</p>
+                <p class="text-lg font-bold text-red-600">
+                  R$ {{ financialReport.totalOverdue | number:'1.2-2' }}
+                </p>
+                <p class="text-xs text-slate-400">
+                  {{ financialReport.countOverdue }}
+                  {{ financialReport.countOverdue === 1 ? 'cobrança' : 'cobranças' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    }
 
     <!-- Painéis inferiores -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -63,7 +142,8 @@
         } @else {
           <div class="divide-y divide-surface-100">
             @for (schedule of todaySchedules; track schedule.id) {
-              <div class="flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors">
+              <div class="flex items-center justify-between px-5 py-3
+                hover:bg-slate-50 transition-colors">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
                     <mat-icon class="text-blue-500 text-base">schedule</mat-icon>
@@ -92,7 +172,8 @@
         <div class="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
           <h2 class="text-sm font-semibold text-slate-700">Cobranças Vencidas</h2>
           @if (overdueFinancials.length > 0) {
-            <span class="text-xs text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-medium">
+            <span class="text-xs text-red-600 bg-red-50 px-2 py-0.5
+              rounded-full font-medium">
               {{ overdueFinancials.length }} pendentes
             </span>
           }
@@ -105,7 +186,8 @@
         } @else {
           <div class="divide-y divide-surface-100">
             @for (financial of overdueFinancials; track financial.id) {
-              <div class="flex items-center justify-between px-5 py-3 hover:bg-red-50 transition-colors">
+              <div class="flex items-center justify-between px-5 py-3
+                hover:bg-red-50 transition-colors">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
                     <mat-icon class="text-red-500 text-base">payment</mat-icon>

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FinancialService } from '../../../core/services/financial/financial.service';
@@ -16,6 +15,7 @@ import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badg
 import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
 import { PaginatorComponent } from '../../../shared/components/paginator/paginator.component';
 import { FinancialFilterComponent, FinancialFilter } from '../financial-filter/financial-filter.component';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-financial-list',
@@ -25,7 +25,6 @@ import { FinancialFilterComponent, FinancialFilter } from '../financial-filter/f
     RouterLink,
     MatIconModule,
     MatButtonModule,
-    MatSnackBarModule,
     MatTooltipModule,
     MatTabsModule,
     PageHeaderComponent,
@@ -41,7 +40,6 @@ import { FinancialFilterComponent, FinancialFilter } from '../financial-filter/f
 })
 export class FinancialListComponent implements OnInit {
 
-  allFinancials: FinancialSummary[] = [];
   filteredFinancials: FinancialSummary[] = [];
   pagedFinancials: FinancialSummary[] = [];
   overdueFinancials: FinancialSummary[] = [];
@@ -55,24 +53,17 @@ export class FinancialListComponent implements OnInit {
   totalPages = 0;
   totalElements = 0;
 
+  /// Filtro ativo para recarregar após ações.
+  private activeFilter: FinancialFilter | null = null;
+
   constructor(
     private financialService: FinancialService,
     private studentService: StudentService,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.loadOverdue();
-  }
-
-  /// Exibe mensagem de sucesso via snackbar.
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-success' });
-  }
-
-  /// Exibe mensagem de erro via snackbar.
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-error' });
   }
 
   /// Carrega todas as cobranças vencidas do sistema.
@@ -89,17 +80,15 @@ export class FinancialListComponent implements OnInit {
 
   /// Aplica o filtro recebido do FinancialFilterComponent.
   onFilterApplied(filter: FinancialFilter): void {
+    this.activeFilter = filter;
     this.isLoading = true;
-    /// Busca cobranças do aluno pelo nome via studentService se necessário.
+
     this.financialService.getOverdue().subscribe({
       next: (financials) => {
-        this.allFinancials = financials;
         this.filteredFinancials = financials.filter(f => {
           if (filter.status !== null && f.status !== filter.status) return false;
-          if (filter.dueDateStart &&
-            new Date(f.dueDate) < filter.dueDateStart) return false;
-          if (filter.dueDateEnd &&
-            new Date(f.dueDate) > filter.dueDateEnd) return false;
+          if (filter.dueDateStart && new Date(f.dueDate) < filter.dueDateStart) return false;
+          if (filter.dueDateEnd && new Date(f.dueDate) > filter.dueDateEnd) return false;
           return true;
         });
         this.page = 1;
@@ -110,12 +99,21 @@ export class FinancialListComponent implements OnInit {
     });
   }
 
-  /// Limpa os filtros.
+  /// Limpa os filtros e a lista.
   onFilterCleared(): void {
+    this.activeFilter = null;
     this.filteredFinancials = [];
     this.pagedFinancials = [];
     this.totalElements = 0;
     this.totalPages = 0;
+  }
+
+  /// Recarrega os dados com o filtro ativo se existir.
+  private reloadData(): void {
+    this.loadOverdue();
+    if (this.activeFilter) {
+      this.onFilterApplied(this.activeFilter);
+    }
   }
 
   /// Atualiza os dados de paginação.
@@ -132,25 +130,51 @@ export class FinancialListComponent implements OnInit {
     this.updatePagination();
   }
 
-  /// Registra o pagamento de uma cobrança.
-  onRegisterPayment(id: string): void {
-    this.financialService.registerPayment(id, {}).subscribe({
-      next: () => {
-        this.showSuccess('Pagamento registrado com sucesso.');
-        this.loadOverdue();
-      },
-      error: () => this.showError('Erro ao registrar pagamento.')
+  /// Registra o pagamento de uma cobrança com confirmação prévia.
+  onRegisterPayment(id: string, amount: number): void {
+    this.notification.confirm({
+      title: 'Registrar Pagamento',
+      message: `Confirma o recebimento de R$ ${amount.toFixed(2).replace('.', ',')}?`,
+      confirmLabel: 'Confirmar Pagamento',
+      cancelLabel: 'Cancelar',
+      type: 'info'
+    }).subscribe(confirmed => {
+      if (!confirmed) return;
+      this.financialService.registerPayment(id, {}).subscribe({
+        next: () => {
+          this.notification.success('Pagamento registrado com sucesso.');
+          this.reloadData();
+        },
+        error: (err) => {
+          this.notification.error(
+            err.error?.errors?.[0] || 'Erro ao registrar pagamento.'
+          );
+        }
+      });
     });
   }
 
-  /// Cancela uma cobrança financeira.
-  onCancel(id: string): void {
-    this.financialService.cancel(id).subscribe({
-      next: () => {
-        this.showSuccess('Cobrança cancelada com sucesso.');
-        this.loadOverdue();
-      },
-      error: () => this.showError('Erro ao cancelar cobrança.')
+  /// Cancela uma cobrança financeira com confirmação prévia.
+  onCancel(id: string, amount: number): void {
+    this.notification.confirm({
+      title: 'Cancelar Cobrança',
+      message: `Tem certeza que deseja cancelar a cobrança de R$ ${amount.toFixed(2).replace('.', ',')}?`,
+      confirmLabel: 'Cancelar Cobrança',
+      cancelLabel: 'Voltar',
+      type: 'danger'
+    }).subscribe(confirmed => {
+      if (!confirmed) return;
+      this.financialService.cancel(id).subscribe({
+        next: () => {
+          this.notification.success('Cobrança cancelada com sucesso.');
+          this.reloadData();
+        },
+        error: (err) => {
+          this.notification.error(
+            err.error?.errors?.[0] || 'Erro ao cancelar cobrança.'
+          );
+        }
+      });
     });
   }
 

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EnrollmentService } from '../../../core/services/enrollment/enrollment.service';
 import { StudentService } from '../../../core/services/student/student.service';
 import { Enrollment } from '../../../core/models/enrollment.model';
 import { StudentSummary } from '../../../core/models/student.model';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -44,21 +45,11 @@ export class EnrollmentListComponent implements OnInit {
   constructor(
     private enrollmentService: EnrollmentService,
     private studentService: StudentService,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.loadStudents();
-  }
-
-  /// Exibe mensagem de sucesso via snackbar.
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-success' });
-  }
-
-  /// Exibe mensagem de erro via snackbar.
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Fechar', { duration: 3000, panelClass: 'snack-error' });
   }
 
   /// Carrega a lista de alunos para o filtro.
@@ -81,10 +72,12 @@ export class EnrollmentListComponent implements OnInit {
         this.enrollments = [enrollment];
         this.isLoading = false;
       },
-      error: () => {
+      error: (err) => {
         this.enrollments = [];
         this.isLoading = false;
-        this.showError('Nenhuma matrícula encontrada para este aluno.');
+        this.notification.error(
+          err.error?.errors?.[0] || 'Nenhuma matrícula encontrada para este aluno.'
+        );
       }
     });
   }
@@ -94,14 +87,27 @@ export class EnrollmentListComponent implements OnInit {
     this.enrollments = [];
   }
 
-  /// Cancela uma matrícula no sistema.
-  onCancel(id: string): void {
-    this.enrollmentService.cancel(id).subscribe({
-      next: () => {
-        this.showSuccess('Matrícula cancelada com sucesso.');
-        this.enrollments = [];
-      },
-      error: () => this.showError('Erro ao cancelar matrícula.')
+  /// Cancela uma matrícula com confirmação prévia.
+  onCancel(id: string, studentName: string): void {
+    this.notification.confirm({
+      title: 'Cancelar Matrícula',
+      message: `Tem certeza que deseja cancelar a matrícula de "${studentName}"? Esta ação não pode ser desfeita.`,
+      confirmLabel: 'Cancelar Matrícula',
+      cancelLabel: 'Voltar',
+      type: 'danger'
+    }).subscribe(confirmed => {
+      if (!confirmed) return;
+      this.enrollmentService.cancel(id).subscribe({
+        next: () => {
+          this.notification.success('Matrícula cancelada com sucesso.');
+          this.enrollments = [];
+        },
+        error: (err) => {
+          this.notification.error(
+            err.error?.errors?.[0] || 'Erro ao cancelar matrícula.'
+          );
+        }
+      });
     });
   }
 }

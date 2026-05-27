@@ -17,6 +17,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badge.component';
 import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
 import { SchedulingFilterComponent, SchedulingFilter } from '../scheduling-filter/scheduling-filter.component';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 
 @Component({
   selector: 'app-scheduling-list',
@@ -51,6 +52,7 @@ export class SchedulingListComponent implements OnInit {
   constructor(
     private schedulingService: SchedulingService,
     private scheduleService: ScheduleService,
+    private notification: NotificationService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -108,27 +110,53 @@ export class SchedulingListComponent implements OnInit {
     });
   }
 
-  /// Registra a presença de um aluno na aula.
-  onCheckIn(id: string): void {
+ /// Registra a presença de um aluno com confirmação prévia.
+onCheckIn(id: string): void {
+  this.notification.confirm({
+    title: 'Registrar Presença',
+    message: 'Confirma a presença do aluno nesta aula?',
+    confirmLabel: 'Confirmar Presença',
+    cancelLabel: 'Cancelar',
+    type: 'info'
+  }).subscribe(confirmed => {
+    if (!confirmed) return;
     this.schedulingService.checkIn(id, {}).subscribe({
       next: () => {
-        this.showSuccess('Presença registrada com sucesso.');
+        this.notification.success('Presença registrada com sucesso.');
         this.onScheduleChange(this.selectedScheduleId);
       },
-      error: () => this.showError('Erro ao registrar presença.')
+      error: (err) => {
+        this.notification.error(
+          err.error?.errors?.[0] || 'Erro ao registrar presença.'
+        );
+      }
     });
-  }
+  });
+}
 
-  /// Cancela um agendamento e libera a vaga.
-  onCancel(id: string): void {
+/// Cancela um agendamento com confirmação prévia.
+onCancel(id: string): void {
+  this.notification.confirm({
+    title: 'Cancelar Agendamento',
+    message: 'Tem certeza que deseja cancelar este agendamento? A vaga será liberada automaticamente.',
+    confirmLabel: 'Cancelar Agendamento',
+    cancelLabel: 'Voltar',
+    type: 'danger'
+  }).subscribe(confirmed => {
+    if (!confirmed) return;
     this.schedulingService.cancel(id).subscribe({
       next: () => {
-        this.showSuccess('Agendamento cancelado com sucesso.');
+        this.notification.success('Agendamento cancelado com sucesso.');
         this.onScheduleChange(this.selectedScheduleId);
       },
-      error: () => this.showError('Erro ao cancelar agendamento.')
+      error: (err) => {
+        this.notification.error(
+          err.error?.errors?.[0] || 'Erro ao cancelar agendamento.'
+        );
+      }
     });
-  }
+  });
+}
 
   /// Retorna o tipo do badge baseado no status do agendamento.
   getStatusBadgeType(status: SchedulingStatus): BadgeType {

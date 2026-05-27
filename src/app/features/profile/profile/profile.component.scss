@@ -1,0 +1,24 @@
+@use '../../../../assets/scss/colors' as *;
+@use '../../../../assets/scss/spacing' as *;
+
+.info-field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+
+  /// Label do campo de informação.
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-neutral-400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /// Valor do campo de informação.
+  &__value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $color-neutral-800;
+  }
+}

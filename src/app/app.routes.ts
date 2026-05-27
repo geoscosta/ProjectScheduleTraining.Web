@@ -52,7 +52,12 @@ export const routes: Routes = [
         path: 'financials',
         loadChildren: () =>
           import('./features/financials/financials.routes').then(m => m.financialsRoutes)
-      }
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+        import('./features/profile/profile/profile.component').then(m => m.ProfileComponent)
+      },
     ]
   },
   {

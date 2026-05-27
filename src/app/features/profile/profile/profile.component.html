@@ -1,0 +1,103 @@
+<div class="space-y-5 max-w-2xl">
+
+  <app-page-header
+    title="Meu Perfil"
+    subtitle="Informações da sua conta" />
+
+  @if (currentUser) {
+
+    <!-- Card dados do usuário -->
+    <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+      <!-- Header com avatar -->
+      <div class="px-6 py-6 border-b border-surface-100">
+        <div class="flex items-center gap-5">
+
+          <!-- Avatar -->
+          <div class="w-20 h-20 rounded-full bg-indigo-600 flex items-center
+            justify-center flex-shrink-0 shadow-md">
+            <span class="text-white text-2xl font-bold">
+              {{ getInitials(currentUser.name) }}
+            </span>
+          </div>
+
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <h2 class="text-xl font-bold text-slate-800 truncate">
+              {{ currentUser.name }}
+            </h2>
+            <p class="text-sm text-slate-500 mt-0.5 truncate">
+              {{ currentUser.email }}
+            </p>
+            <div class="mt-2">
+              <app-badge
+                [label]="getRoleLabel(currentUser.role)"
+                [type]="getRoleBadgeType(currentUser.role)" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detalhes -->
+      <div class="px-6 py-5">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase
+          tracking-wide mb-4">Informações da Conta</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          <div class="info-field">
+            <span class="info-field__label">Nome completo</span>
+            <span class="info-field__value">{{ currentUser.name }}</span>
+          </div>
+
+          <div class="info-field">
+            <span class="info-field__label">E-mail</span>
+            <span class="info-field__value">{{ currentUser.email }}</span>
+          </div>
+
+          <div class="info-field">
+            <span class="info-field__label">Perfil de acesso</span>
+            <app-badge
+              [label]="getRoleLabel(currentUser.role)"
+              [type]="getRoleBadgeType(currentUser.role)" />
+          </div>
+
+          <div class="info-field">
+            <span class="info-field__label">ID do usuário</span>
+            <span class="info-field__value text-xs text-slate-400 font-mono">
+              {{ currentUser.id }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Card sessão -->
+    <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+      <div class="px-6 py-5 border-b border-surface-100">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+          Sessão
+        </h3>
+      </div>
+      <div class="px-6 py-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">Encerrar sessão</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Você será redirecionado para a tela de login.
+            </p>
+          </div>
+          <button
+            mat-stroked-button
+            class="text-red-600 border-red-200 hover:bg-red-50"
+            (click)="onLogout()">
+            <mat-icon class="text-red-500">logout</mat-icon>
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+
+  }
+</div>

@@ -4,13 +4,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { UserAuthResponse, UserRole } from '../../core/models/auth.model';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, MatDividerModule, RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })

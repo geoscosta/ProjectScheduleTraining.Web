@@ -1,0 +1,217 @@
+<div class="space-y-5 max-w-3xl">
+
+  <!-- Cabeçalho -->
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="onBack()" class="text-slate-500">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Avaliação PAR-Q</h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Physical Activity Readiness Questionnaire
+      </p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+  <app-loading-spinner />
+  } @else if (existingAssessment) {
+
+  <!-- Resultado da avaliação existente -->
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+    <div class="px-6 py-5 border-b border-surface-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+          [class.bg-green-50]="existingAssessment.isCleared" [class.bg-red-50]="!existingAssessment.isCleared">
+          <mat-icon [class.text-green-500]="existingAssessment.isCleared"
+            [class.text-red-500]="!existingAssessment.isCleared">
+            {{ existingAssessment.isCleared ? 'check_circle' : 'warning' }}
+          </mat-icon>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-slate-800">
+            Avaliação realizada em
+            {{ existingAssessment.assessmentDate | date:'dd/MM/yyyy' }}
+          </p>
+          <app-badge [label]="existingAssessment.isCleared ? 'Liberado para atividades' : 'Requer avaliação médica'"
+            [type]="existingAssessment.isCleared ? 'success' : 'danger'" />
+        </div>
+      </div>
+      <button mat-stroked-button (click)="onNewAssessment()" class="text-xs">
+        <mat-icon>refresh</mat-icon>
+        Nova Avaliação
+      </button>
+    </div>
+
+    <!-- Respostas -->
+    <div class="px-6 py-5">
+      <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">
+        Respostas registradas
+      </h3>
+      <div class="space-y-3">
+        @for (question of questions; track question.key) {
+        <div class="flex items-start gap-4 p-3 rounded-lg bg-slate-50">
+          <div class="flex-shrink-0 mt-0.5">
+            @if (existingAssessment[question.key]) {
+            <div class="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+              <mat-icon class="text-red-500 text-sm">close</mat-icon>
+            </div>
+            } @else {
+            <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+              <mat-icon class="text-green-500 text-sm">check</mat-icon>
+            </div>
+            }
+          </div>
+          <p class="text-sm text-slate-700 flex-1">{{ question.text }}</p>
+          <span class="text-xs font-semibold flex-shrink-0" [class.text-red-600]="existingAssessment[question.key]"
+            [class.text-green-600]="!existingAssessment[question.key]">
+            {{ existingAssessment[question.key] ? 'SIM' : 'NÃO' }}
+          </span>
+        </div>
+        }
+      </div>
+
+      @if (!existingAssessment.isCleared) {
+      <div class="mt-4 flex items-start gap-3 bg-red-50 border border-red-100
+            rounded-lg p-4">
+        <mat-icon class="text-red-500 flex-shrink-0">warning_amber</mat-icon>
+        <div>
+          <p class="text-sm font-semibold text-red-700">
+            Atenção — Avaliação Médica Necessária
+          </p>
+          <p class="text-xs text-red-600 mt-1">
+            Uma ou mais respostas indicam risco. O aluno deve obter autorização
+            médica antes de iniciar as atividades físicas.
+          </p>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  } @else {
+
+  <!-- Formulário PAR-Q -->
+  <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+    <mat-icon class="text-blue-500 flex-shrink-0 mt-0.5">info</mat-icon>
+    <div>
+      <p class="text-sm font-semibold text-blue-800">
+        O que é o PAR-Q?
+      </p>
+      <p class="text-xs text-blue-700 mt-1">
+        O PAR-Q (Physical Activity Readiness Questionnaire) é um questionário
+        de prontidão para atividade física. Ele identifica pessoas que podem
+        precisar de avaliação médica antes de iniciar um programa de exercícios.
+        Responda com total honestidade.
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+    <div class="px-6 py-5 border-b border-surface-100">
+      <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+        Responda as 7 questões abaixo
+      </h2>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="divide-y divide-surface-100">
+        @for (question of questions; track question.key; let i = $index) {
+        <div class="px-6 py-5">
+          <div class="flex items-start gap-4">
+
+            <!-- Número da questão -->
+            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center
+                  justify-center flex-shrink-0 mt-0.5">
+              <span class="text-indigo-600 text-sm font-bold">{{ i + 1 }}</span>
+            </div>
+
+            <!-- Pergunta e botões -->
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-slate-700 mb-3">{{ question.text }}</p>
+
+              <div class="flex gap-3">
+
+                <!-- Botão NÃO -->
+                <button type="button" class="answer-btn"
+                  [class.answer-btn--selected-no]="getAnswer(question.key) === false"
+                  [class.answer-btn--unselected]="getAnswer(question.key) !== false"
+                  (click)="setAnswer(question.key, false)">
+                  <mat-icon class="text-base">thumb_up</mat-icon>
+                  Não
+                </button>
+
+                <!-- Botão SIM -->
+                <button type="button" class="answer-btn"
+                  [class.answer-btn--selected-yes]="getAnswer(question.key) === true"
+                  [class.answer-btn--unselected]="getAnswer(question.key) !== true"
+                  (click)="setAnswer(question.key, true)">
+                  <mat-icon class="text-base">thumb_down</mat-icon>
+                  Sim
+                </button>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Observações -->
+      <div class="px-6 py-5 border-t border-surface-100">
+        <div class="field">
+          <label class="field__label">Observações (opcional)</label>
+          <div class="field__input-wrapper">
+            <mat-icon class="field__icon">notes</mat-icon>
+            <input class="field__input" formControlName="notes"
+              placeholder="Observações adicionais sobre o estado de saúde do aluno" type="text">
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso de risco -->
+      @if (hasRisk && allAnswered) {
+      <div class="mx-6 mb-4 flex items-start gap-3 bg-red-50 border
+            border-red-100 rounded-lg p-4">
+        <mat-icon class="text-red-500 flex-shrink-0">warning_amber</mat-icon>
+        <div>
+          <p class="text-sm font-semibold text-red-700">
+            Uma ou mais respostas indicam risco
+          </p>
+          <p class="text-xs text-red-600 mt-1">
+            O aluno deverá apresentar atestado médico autorizando a prática
+            de atividades físicas antes de iniciar os treinos.
+          </p>
+        </div>
+      </div>
+      }
+
+      <!-- Botões -->
+      <div class="px-6 py-4 bg-slate-50 flex items-center justify-between">
+        <p class="text-xs text-slate-400">
+          @if (unansweredCount > 0) {
+          {{ unansweredCount }} questão(ões) sem resposta
+          } @else {
+          Todas as questões respondidas
+          }
+        </p>
+        <div class="flex gap-3">
+          <button mat-stroked-button type="button" (click)="onBack()">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!allAnswered || isSaving">
+            @if (isSaving) {
+            <mat-spinner diameter="18" class="inline-block mr-2" />
+            }
+            Salvar Avaliação
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  }
+</div>

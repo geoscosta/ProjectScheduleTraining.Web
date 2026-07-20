@@ -20,5 +20,10 @@ export const studentsRoutes: Routes = [
     path: ':id/edit',
     loadComponent: () =>
       import('./student-form/student-form.component').then(m => m.StudentFormComponent)
-  }
+  },
+  {
+  path: ':id/parq',
+  loadComponent: () =>
+    import('./student-parq/student-parq.component').then(m => m.StudentParqComponent)
+  },
 ];

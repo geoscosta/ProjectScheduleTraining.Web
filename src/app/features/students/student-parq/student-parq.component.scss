@@ -1,0 +1,93 @@
+@use '../../../../assets/scss/colors' as *;
+@use '../../../../assets/scss/spacing' as *;
+
+/// Botão de resposta Sim/Não.
+.answer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2 $space-4;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid transparent;
+
+  /// Estado padrão — não selecionado.
+  &--unselected {
+    background-color: $color-neutral-100;
+    color: $color-neutral-500;
+    border-color: $color-neutral-200;
+
+    &:hover {
+      background-color: $color-neutral-200;
+    }
+  }
+
+  /// Estado selecionado — resposta NÃO (positivo).
+  &--selected-no {
+    background-color: $color-success-50;
+    color: $color-success-700;
+    border-color: $color-success-500;
+  }
+
+  /// Estado selecionado — resposta SIM (risco).
+  &--selected-yes {
+    background-color: $color-danger-50;
+    color: $color-danger-700;
+    border-color: $color-danger-500;
+  }
+}
+
+/// Campo de input.
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-neutral-600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: $space-3;
+    color: $color-neutral-400;
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    height: 40px;
+    padding: 0 $space-3 0 $space-8;
+    border: 1px solid $color-neutral-300;
+    border-radius: 0.5rem;
+    background-color: $color-white;
+    color: $color-neutral-800;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder { color: $color-neutral-400; }
+    &:focus {
+      border-color: $color-primary-400;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+  }
+}

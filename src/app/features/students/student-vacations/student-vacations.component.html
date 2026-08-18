@@ -1,0 +1,201 @@
+<div class="space-y-5 max-w-3xl">
+
+  <!-- Cabeçalho -->
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="onBack()" class="text-slate-500">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Férias</h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Gerencie as férias do aluno
+      </p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <app-loading-spinner />
+  } @else {
+
+    <!-- Info contrato -->
+    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+      <mat-icon class="text-blue-500 flex-shrink-0 mt-0.5">info</mat-icon>
+      <div class="space-y-1">
+        <p class="text-sm font-semibold text-blue-800">Regras de férias — Contrato</p>
+        <p class="text-xs text-blue-700">
+          <strong>Férias de 1 mês:</strong> pagamento normal. Aviso obrigatório
+          com 30 dias de antecedência.
+        </p>
+        <p class="text-xs text-blue-700">
+          <strong>Férias de 15 dias:</strong> pagamento de 50% da mensalidade
+          para garantir a vaga durante as férias.
+        </p>
+      </div>
+    </div>
+
+    <!-- Histórico de férias -->
+    <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+      <div class="px-5 py-4 border-b border-surface-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-slate-700">Histórico de Férias</h2>
+        @if (!showForm) {
+          <button mat-raised-button color="primary" class="text-xs"
+            (click)="showForm = true">
+            <mat-icon>add</mat-icon>
+            Solicitar Férias
+          </button>
+        }
+      </div>
+
+      @if (vacations.length === 0 && !showForm) {
+        <div class="px-5 py-10 text-center">
+          <mat-icon class="text-slate-300 text-5xl mb-2">beach_access</mat-icon>
+          <p class="text-sm text-slate-500">Nenhuma férias solicitada.</p>
+          <button mat-stroked-button class="mt-3 text-xs"
+            (click)="showForm = true">
+            Solicitar agora
+          </button>
+        </div>
+      } @else if (!showForm) {
+        <div class="divide-y divide-surface-100">
+          @for (vacation of vacations; track vacation.id) {
+            <div class="px-5 py-4 flex items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center
+                  justify-center flex-shrink-0">
+                  <mat-icon class="text-indigo-500">beach_access</mat-icon>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-slate-700">
+                    {{ getVacationTypeLabel(vacation.vacationType) }}
+                  </p>
+                  <p class="text-xs text-slate-500 mt-0.5">
+                    {{ vacation.startDate | date:'dd/MM/yyyy' }} →
+                    {{ vacation.endDate | date:'dd/MM/yyyy' }}
+                  </p>
+                  <p class="text-xs text-slate-400 mt-0.5">
+                    Cobrança: R$ {{ vacation.billingAmount | number:'1.2-2' }}
+                  </p>
+                </div>
+              </div>
+              <app-badge
+                [label]="getStatusLabel(vacation.isApproved)"
+                [type]="getStatusBadge(vacation.isApproved)" />
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Formulário de solicitação -->
+      @if (showForm) {
+        <div class="px-5 py-5">
+          <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Nova Solicitação
+          </h3>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+
+            <!-- Tipo de férias -->
+            <div class="field">
+              <label class="field__label">
+                Tipo de férias <span class="field__required">*</span>
+              </label>
+              <div class="space-y-2">
+                @for (option of vacationTypeOptions; track option.value) {
+                  <label class="vacation-option"
+                    [class.vacation-option--selected]="form.get('vacationType')?.value === option.value"
+                    (click)="form.get('vacationType')?.setValue(option.value)">
+                    <div class="vacation-option__radio"
+                      [class.vacation-option__radio--selected]="form.get('vacationType')?.value === option.value">
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-sm font-semibold text-slate-700">{{ option.label }}</p>
+                      <p class="text-xs text-slate-500 mt-0.5">{{ option.description }}</p>
+                      <p class="text-xs font-medium text-indigo-600 mt-1">
+                        Cobrança: {{ option.billing }}
+                      </p>
+                    </div>
+                  </label>
+                }
+              </div>
+              @if (form.get('vacationType')?.invalid && form.get('vacationType')?.touched) {
+                <span class="field__error">Selecione o tipo de férias.</span>
+              }
+            </div>
+
+            <!-- Data de início -->
+            <div class="field">
+              <label class="field__label">
+                Data de início <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">event</mat-icon>
+                <input class="field__input field__input--datepicker"
+                  [matDatepicker]="picker"
+                  [min]="minStartDate"
+                  formControlName="startDate"
+                  placeholder="dd/mm/aaaa">
+                <mat-datepicker-toggle class="field__datepicker-toggle" [for]="picker" />
+                <mat-datepicker #picker />
+              </div>
+              @if (form.get('startDate')?.invalid && form.get('startDate')?.touched) {
+                <span class="field__error">Data de início é obrigatória.</span>
+              }
+            </div>
+
+            <!-- Data de término calculada -->
+            @if (calculatedEndDate) {
+              <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-100
+                rounded-lg px-4 py-3">
+                <mat-icon class="text-indigo-500 text-base flex-shrink-0">event_available</mat-icon>
+                <p class="text-sm text-indigo-700">
+                  Previsão de retorno:
+                  <strong>{{ calculatedEndDate | date:'dd/MM/yyyy' }}</strong>
+                </p>
+              </div>
+            }
+
+            <!-- Cobrança calculada -->
+            @if (billingInfo) {
+              <div class="flex items-center gap-2 bg-amber-50 border border-amber-100
+                rounded-lg px-4 py-3">
+                <mat-icon class="text-amber-500 text-base flex-shrink-0">payments</mat-icon>
+                <p class="text-sm text-amber-700">
+                  Cobrança no período: <strong>{{ billingInfo }}</strong>
+                </p>
+              </div>
+            }
+
+            <!-- Observações -->
+            <div class="field">
+              <label class="field__label">Observações</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">notes</mat-icon>
+                <input class="field__input" formControlName="notes"
+                  placeholder="Informações adicionais sobre as férias"
+                  type="text">
+              </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="flex gap-3 pt-2">
+              <button mat-stroked-button type="button"
+                (click)="showForm = false">
+                Cancelar
+              </button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="form.invalid || isSaving">
+                @if (isSaving) {
+                  <mat-spinner diameter="18" class="inline-block mr-2" />
+                }
+                Enviar Solicitação
+              </button>
+            </div>
+
+          </form>
+        </div>
+      }
+
+    </div>
+  }
+</div>

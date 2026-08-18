@@ -26,4 +26,9 @@ export const studentsRoutes: Routes = [
   loadComponent: () =>
     import('./student-parq/student-parq.component').then(m => m.StudentParqComponent)
   },
+  {
+  path: ':id/vacations',
+  loadComponent: () =>
+    import('./student-vacations/student-vacations.component').then(m => m.StudentVacationsComponent)
+  },
 ];

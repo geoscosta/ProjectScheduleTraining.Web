@@ -73,10 +73,17 @@
           </span>
         </div>
 
-        @if (student.address) {
+        @if (student.street) {
         <div class="info-field sm:col-span-2">
           <span class="info-field__label">Endereço</span>
-          <span class="info-field__value">{{ student.address }}</span>
+          <span class="info-field__value">
+            {{ student.street }}{{ student.addressNumber ? ', ' + student.addressNumber : '' }}
+            {{ student.complement ? '— ' + student.complement : '' }}
+            {{ student.district ? '· ' + student.district : '' }}
+            {{ student.city ? '· ' + student.city : '' }}
+            {{ student.state ? '/' + student.state : '' }}
+            {{ student.zipCode ? '· CEP ' + student.zipCode : '' }}
+          </span>
         </div>
         }
 

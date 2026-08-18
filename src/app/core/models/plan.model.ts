@@ -18,6 +18,7 @@ export interface PlanSummary {
   weeklyFrequency: WeeklyFrequency;
   durationMonths: number;
   price: number;
+  isActive: boolean;
 }
 
 export interface CreatePlanRequest {

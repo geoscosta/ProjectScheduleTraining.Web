@@ -1,6 +1,6 @@
 <div class="space-y-5">
 
-  <!-- Título -->
+  <!-- Cabeçalho -->
   <div class="flex items-center gap-3">
     <button mat-icon-button routerLink="/students" class="text-slate-500">
       <mat-icon>arrow_back</mat-icon>
@@ -23,61 +23,54 @@
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-        <!-- Seção dados pessoais -->
+        <!-- ── Dados Pessoais ───────────────────────────────────────── -->
         <div class="px-6 py-5 border-b border-surface-100">
-          <h2 class="text-xs font-semibold text-slate-500 uppercase
-            tracking-wide mb-4">Dados Pessoais</h2>
-
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Dados Pessoais
+          </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <!-- Nome -->
             <div class="field md:col-span-2">
-              <label class="field__label">
-                Nome completo <span class="field__required">*</span>
-              </label>
+              <label class="field__label">Nome completo <span class="field__required">*</span></label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">person</mat-icon>
-                <input class="field__input"
-                  formControlName="name"
-                  placeholder="Nome completo do aluno"
-                  type="text">
+                <input class="field__input" formControlName="name"
+                  placeholder="Nome completo do aluno" type="text">
               </div>
               @if (form.get('name')?.invalid && form.get('name')?.touched) {
                 <span class="field__error">Nome é obrigatório.</span>
               }
             </div>
 
-            <!-- CPF -->
             <div class="field">
-              <label class="field__label">
-                CPF <span class="field__required">*</span>
-              </label>
+              <label class="field__label">CPF <span class="field__required">*</span></label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">badge</mat-icon>
-                <input class="field__input"
-                  formControlName="cpf"
-                  placeholder="000.000.000-00"
-                  type="text"
-                  [attr.disabled]="isEditMode ? '' : null">
+                <input class="field__input" formControlName="cpf"
+                  placeholder="000.000.000-00" type="text">
               </div>
               @if (form.get('cpf')?.invalid && form.get('cpf')?.touched) {
                 <span class="field__error">CPF é obrigatório.</span>
               }
             </div>
 
-            <!-- Data de nascimento -->
             <div class="field">
-              <label class="field__label">
-                Data de nascimento <span class="field__required">*</span>
-              </label>
+              <label class="field__label">RG</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">contact_page</mat-icon>
+                <input class="field__input" formControlName="identityDocument"
+                  placeholder="0000000" type="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label">Data de Nascimento <span class="field__required">*</span></label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">cake</mat-icon>
                 <input class="field__input field__input--datepicker"
-                  [matDatepicker]="picker"
-                  formControlName="birthDate"
+                  [matDatepicker]="picker" formControlName="birthDate"
                   placeholder="dd/mm/aaaa">
-                <mat-datepicker-toggle class="field__datepicker-toggle"
-                  [for]="picker" />
+                <mat-datepicker-toggle class="field__datepicker-toggle" [for]="picker" />
                 <mat-datepicker #picker />
               </div>
               @if (form.get('birthDate')?.invalid && form.get('birthDate')?.touched) {
@@ -85,17 +78,22 @@
               }
             </div>
 
-            <!-- E-mail -->
             <div class="field">
-              <label class="field__label">
-                E-mail <span class="field__required">*</span>
-              </label>
+              <label class="field__label">Estado Civil</label>
+              <mat-select class="field__select" formControlName="maritalStatus">
+                <mat-option [value]="null">Não informado</mat-option>
+                @for (option of maritalStatusOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                }
+              </mat-select>
+            </div>
+
+            <div class="field">
+              <label class="field__label">E-mail <span class="field__required">*</span></label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">email</mat-icon>
-                <input class="field__input"
-                  formControlName="email"
-                  placeholder="email@exemplo.com"
-                  type="email">
+                <input class="field__input" formControlName="email"
+                  placeholder="email@exemplo.com" type="email">
               </div>
               @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
                 <span class="field__error">E-mail é obrigatório.</span>
@@ -105,61 +103,200 @@
               }
             </div>
 
-            <!-- Telefone -->
             <div class="field">
-              <label class="field__label">
-                Telefone <span class="field__required">*</span>
-              </label>
+              <label class="field__label">Telefone <span class="field__required">*</span></label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">phone</mat-icon>
-                <input class="field__input"
-                  formControlName="phone"
-                  placeholder="(00) 00000-0000"
-                  type="text">
+                <input class="field__input" formControlName="phone"
+                  placeholder="(00) 00000-0000" type="text">
               </div>
               @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
                 <span class="field__error">Telefone é obrigatório.</span>
               }
             </div>
 
+            <div class="field md:col-span-2">
+              <label class="field__label">Profissão</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">work</mat-icon>
+                <input class="field__input" formControlName="profession"
+                  placeholder="Profissão do aluno" type="text">
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- Seção dados complementares -->
+        <!-- ── Endereço ─────────────────────────────────────────────── -->
         <div class="px-6 py-5 border-b border-surface-100">
-          <h2 class="text-xs font-semibold text-slate-500 uppercase
-            tracking-wide mb-4">Dados Complementares</h2>
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Endereço
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            <!-- Endereço -->
             <div class="field md:col-span-2">
-              <label class="field__label">Endereço</label>
+              <label class="field__label">Rua</label>
               <div class="field__input-wrapper">
                 <mat-icon class="field__icon">location_on</mat-icon>
-                <input class="field__input"
-                  formControlName="address"
-                  placeholder="Rua, número, bairro, cidade"
-                  type="text">
+                <input class="field__input" formControlName="street"
+                  placeholder="Nome da rua ou avenida" type="text">
               </div>
             </div>
 
-            <!-- Contato de emergência -->
-            <div class="field md:col-span-2">
-              <label class="field__label">Contato de emergência</label>
+            <div class="field">
+              <label class="field__label">Número</label>
               <div class="field__input-wrapper">
-                <mat-icon class="field__icon">contact_phone</mat-icon>
-                <input class="field__input"
-                  formControlName="emergencyContact"
-                  placeholder="Nome — (00) 00000-0000"
-                  type="text">
+                <mat-icon class="field__icon">tag</mat-icon>
+                <input class="field__input" formControlName="addressNumber"
+                  placeholder="Nº" type="text">
               </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label">Complemento</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">apartment</mat-icon>
+                <input class="field__input" formControlName="complement"
+                  placeholder="Apto, sala, bloco..." type="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label">Bairro</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">map</mat-icon>
+                <input class="field__input" formControlName="district"
+                  placeholder="Bairro" type="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label">CEP</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">markunread_mailbox</mat-icon>
+                <input class="field__input" formControlName="zipCode"
+                  placeholder="00000-000" type="text">
+              </div>
+            </div>
+
+            <div class="field md:col-span-2">
+              <label class="field__label">Cidade</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">location_city</mat-icon>
+                <input class="field__input" formControlName="city"
+                  placeholder="Cidade" type="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field__label">Estado</label>
+              <mat-select class="field__select" formControlName="state">
+                <mat-option value="">Selecione</mat-option>
+                @for (uf of states; track uf) {
+                  <mat-option [value]="uf">{{ uf }}</mat-option>
+                }
+              </mat-select>
             </div>
 
           </div>
         </div>
 
-        <!-- Ações -->
+        <!-- ── Responsável Legal ────────────────────────────────────── -->
+        @if (isMinor || isEditMode) {
+          <div class="px-6 py-5 border-b border-surface-100">
+            <div class="flex items-center gap-2 mb-4">
+              <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                Responsável Legal
+              </h2>
+              @if (isMinor) {
+                <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5
+                  rounded-full font-medium">Obrigatório — menor de idade</span>
+              }
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div class="field">
+                <label class="field__label">
+                  Nome do Responsável
+                  @if (isMinor) { <span class="field__required">*</span> }
+                </label>
+                <div class="field__input-wrapper">
+                  <mat-icon class="field__icon">supervisor_account</mat-icon>
+                  <input class="field__input" formControlName="guardianName"
+                    placeholder="Nome completo do responsável" type="text">
+                </div>
+                @if (form.get('guardianName')?.invalid && form.get('guardianName')?.touched) {
+                  <span class="field__error">Nome do responsável é obrigatório para menores.</span>
+                }
+              </div>
+
+              <div class="field">
+                <label class="field__label">
+                  CPF do Responsável
+                  @if (isMinor) { <span class="field__required">*</span> }
+                </label>
+                <div class="field__input-wrapper">
+                  <mat-icon class="field__icon">badge</mat-icon>
+                  <input class="field__input" formControlName="guardianCpf"
+                    placeholder="000.000.000-00" type="text">
+                </div>
+                @if (form.get('guardianCpf')?.invalid && form.get('guardianCpf')?.touched) {
+                  <span class="field__error">CPF do responsável é obrigatório para menores.</span>
+                }
+              </div>
+
+            </div>
+          </div>
+        }
+
+        <!-- ── Contato de Emergência ────────────────────────────────── -->
+        <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Contato de Emergência
+          </h2>
+          <div class="field">
+            <label class="field__label">Contato de emergência</label>
+            <div class="field__input-wrapper">
+              <mat-icon class="field__icon">contact_phone</mat-icon>
+              <input class="field__input" formControlName="emergencyContact"
+                placeholder="Nome — (00) 00000-0000" type="text">
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Termos e Aceites ─────────────────────────────────────── -->
+        <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Termos e Aceites
+          </h2>
+          <div class="space-y-3">
+
+            <label class="flex items-start gap-3 cursor-pointer">
+              <mat-checkbox formControlName="imageRightsAccepted" color="primary" />
+              <div>
+                <p class="text-sm font-medium text-slate-700">Cessão de uso de imagem</p>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  O aluno autoriza o uso de sua imagem para fins promocionais e
+                  publicitários do estúdio, por tempo indeterminado.
+                </p>
+              </div>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer">
+              <mat-checkbox formControlName="internalRegulationAccepted" color="primary" />
+              <div>
+                <p class="text-sm font-medium text-slate-700">Regulamento interno</p>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  O aluno declara ter ciência e se compromete a cumprir o
+                  Regimento Interno do Estúdio Trinca.
+                </p>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- ── Ações ───────────────────────────────────────────────── -->
         <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
           <button mat-stroked-button type="button" (click)="onCancel()">
             Cancelar

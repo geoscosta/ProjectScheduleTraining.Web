@@ -2,16 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { NotificationService } from '../../../core/services/notification/notification.service';
 import { StudentService } from '../../../core/services/student/student.service';
 
 @Component({
@@ -21,15 +20,13 @@ import { StudentService } from '../../../core/services/student/student.service';
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSelectModule,
+    MatCheckboxModule,
     LoadingSpinnerComponent
   ],
   templateUrl: './student-form.component.html',
@@ -43,22 +40,61 @@ export class StudentFormComponent implements OnInit {
   isEditMode = false;
   studentId: string | null = null;
 
+  /// Opções de estado civil para o select.
+  maritalStatusOptions = [
+    { value: 1, label: 'Solteiro(a)' },
+    { value: 2, label: 'Casado(a)' },
+    { value: 3, label: 'Divorciado(a)' },
+    { value: 4, label: 'Viúvo(a)' },
+    { value: 5, label: 'União Estável' }
+  ];
+
+  /// Estados brasileiros para o select.
+  states = [
+    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
+    'MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN',
+    'RS','RO','RR','SC','SP','SE','TO'
+  ];
+
   constructor(
     private fb: FormBuilder,
     private studentService: StudentService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {
-    /// Inicializa o formulário com as validações necessárias.
     this.form = this.fb.group({
+      /// Dados pessoais obrigatórios.
       name: ['', [Validators.required, Validators.maxLength(150)]],
       cpf: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(200)]],
       phone: ['', [Validators.required, Validators.maxLength(20)]],
       birthDate: ['', [Validators.required]],
-      address: ['', [Validators.maxLength(300)]],
-      emergencyContact: ['', [Validators.maxLength(200)]]
+
+      /// Dados complementares do contrato.
+      identityDocument: ['', [Validators.maxLength(20)]],
+      profession: ['', [Validators.maxLength(100)]],
+      maritalStatus: [null],
+
+      /// Endereço estruturado.
+      street: ['', [Validators.maxLength(200)]],
+      addressNumber: ['', [Validators.maxLength(20)]],
+      complement: ['', [Validators.maxLength(100)]],
+      district: ['', [Validators.maxLength(100)]],
+      city: ['', [Validators.maxLength(100)]],
+      state: ['', [Validators.maxLength(2)]],
+      zipCode: ['', [Validators.maxLength(9)]],
+
+      /// Responsável legal (para menores de 18 anos).
+      guardianName: ['', [Validators.maxLength(150)]],
+      guardianCpf: ['', [Validators.maxLength(14)]],
+
+      /// Contato de emergência.
+      emergencyContact: ['', [Validators.maxLength(200)]],
+
+      /// Termos e aceites.
+      imageRightsAccepted: [false],
+      internalRegulationAccepted: [false]
     });
   }
 
@@ -69,6 +105,37 @@ export class StudentFormComponent implements OnInit {
     if (this.isEditMode) {
       this.loadStudent();
     }
+
+    /// Monitora a data de nascimento para exibir/ocultar campos do responsável.
+    this.form.get('birthDate')?.valueChanges.subscribe(date => {
+      if (date) this.updateGuardianValidators(date);
+    });
+  }
+
+  /// Verifica se o aluno é menor de idade.
+  get isMinor(): boolean {
+    const birth = this.form.get('birthDate')?.value;
+    if (!birth) return false;
+    const age = new Date().getFullYear() - new Date(birth).getFullYear();
+    return age < 18;
+  }
+
+  /// Atualiza os validators dos campos do responsável conforme a idade.
+  private updateGuardianValidators(birthDate: Date): void {
+    const age = new Date().getFullYear() - new Date(birthDate).getFullYear();
+    const guardianName = this.form.get('guardianName');
+    const guardianCpf = this.form.get('guardianCpf');
+
+    if (age < 18) {
+      guardianName?.setValidators([Validators.required, Validators.maxLength(150)]);
+      guardianCpf?.setValidators([Validators.required, Validators.maxLength(14)]);
+    } else {
+      guardianName?.setValidators([Validators.maxLength(150)]);
+      guardianCpf?.setValidators([Validators.maxLength(14)]);
+    }
+
+    guardianName?.updateValueAndValidity();
+    guardianCpf?.updateValueAndValidity();
   }
 
   /// Carrega os dados do aluno para edição.
@@ -81,17 +148,30 @@ export class StudentFormComponent implements OnInit {
           email: student.email,
           phone: student.phone,
           birthDate: student.birthDate,
-          address: student.address,
-          emergencyContact: student.emergencyContact
+          identityDocument: student.identityDocument,
+          profession: student.profession,
+          maritalStatus: student.maritalStatus,
+          street: student.street,
+          addressNumber: student.addressNumber,
+          complement: student.complement,
+          district: student.district,
+          city: student.city,
+          state: student.state,
+          zipCode: student.zipCode,
+          guardianName: student.guardianName,
+          guardianCpf: student.guardianCpf,
+          emergencyContact: student.emergencyContact,
+          imageRightsAccepted: student.imageRightsAccepted,
+          internalRegulationAccepted: student.internalRegulationAccepted
         });
 
-        /// Desabilita o CPF em modo de edição pois não pode ser alterado.
+        /// CPF não pode ser alterado em modo de edição.
         this.form.get('cpf')?.disable();
         this.isLoading = false;
       },
       error: () => {
         this.isLoading = false;
-        this.snackBar.open('Erro ao carregar aluno.', 'Fechar', { duration: 3000 });
+        this.notification.error('Erro ao carregar aluno.');
         this.router.navigate(['/students']);
       }
     });
@@ -102,35 +182,28 @@ export class StudentFormComponent implements OnInit {
     if (this.form.invalid) return;
 
     this.isSaving = true;
+    const data = this.form.getRawValue();
 
     if (this.isEditMode) {
-      this.studentService.update(this.studentId!, this.form.value).subscribe({
+      this.studentService.update(this.studentId!, data).subscribe({
         next: () => {
-          this.snackBar.open('Aluno atualizado com sucesso.', 'Fechar', { duration: 3000 });
+          this.notification.success('Aluno atualizado com sucesso.');
           this.router.navigate(['/students']);
         },
         error: (err) => {
           this.isSaving = false;
-          this.snackBar.open(
-            err.error?.errors?.[0] || 'Erro ao atualizar aluno.',
-            'Fechar',
-            { duration: 3000 }
-          );
+          this.notification.error(err.error?.errors?.[0] || 'Erro ao atualizar aluno.');
         }
       });
     } else {
-      this.studentService.create(this.form.value).subscribe({
+      this.studentService.create(data).subscribe({
         next: () => {
-          this.snackBar.open('Aluno criado com sucesso.', 'Fechar', { duration: 3000 });
+          this.notification.success('Aluno cadastrado com sucesso.');
           this.router.navigate(['/students']);
         },
         error: (err) => {
           this.isSaving = false;
-          this.snackBar.open(
-            err.error?.errors?.[0] || 'Erro ao criar aluno.',
-            'Fechar',
-            { duration: 3000 }
-          );
+          this.notification.error(err.error?.errors?.[0] || 'Erro ao cadastrar aluno.');
         }
       });
     }

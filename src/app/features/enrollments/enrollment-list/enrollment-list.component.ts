@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { EnrollmentService } from '../../../core/services/enrollment/enrollment.service';
 import { StudentService } from '../../../core/services/student/student.service';
 import { Enrollment } from '../../../core/models/enrollment.model';
@@ -15,6 +15,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
 import { EnrollmentFilterComponent, EnrollmentFilter } from '../enrollment-filter/enrollment-filter.component';
+import { CancelEnrollmentDialogComponent } from '../cancel-enrollment-dialog/cancel-enrollment-dialog.component';
 
 @Component({
   selector: 'app-enrollment-list',
@@ -24,7 +25,7 @@ import { EnrollmentFilterComponent, EnrollmentFilter } from '../enrollment-filte
     RouterLink,
     MatIconModule,
     MatButtonModule,
-    MatSnackBarModule,
+    MatDialogModule,
     PageHeaderComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
@@ -45,14 +46,14 @@ export class EnrollmentListComponent implements OnInit {
   constructor(
     private enrollmentService: EnrollmentService,
     private studentService: StudentService,
-    private notification: NotificationService
+    private notification: NotificationService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.loadStudents();
   }
 
-  /// Carrega a lista de alunos para o filtro.
   private loadStudents(): void {
     this.studentService.getAll().subscribe({
       next: (students) => {
@@ -62,7 +63,6 @@ export class EnrollmentListComponent implements OnInit {
     });
   }
 
-  /// Aplica o filtro e busca a matrícula do aluno selecionado.
   onFilterApplied(filter: EnrollmentFilter): void {
     if (!filter.studentId) return;
 
@@ -82,22 +82,27 @@ export class EnrollmentListComponent implements OnInit {
     });
   }
 
-  /// Limpa os filtros e a lista de matrículas.
   onFilterCleared(): void {
     this.enrollments = [];
   }
 
-  /// Cancela uma matrícula com confirmação prévia.
-  onCancel(id: string, studentName: string): void {
-    this.notification.confirm({
-      title: 'Cancelar Matrícula',
-      message: `Tem certeza que deseja cancelar a matrícula de "${studentName}"? Esta ação não pode ser desfeita.`,
-      confirmLabel: 'Cancelar Matrícula',
-      cancelLabel: 'Voltar',
-      type: 'danger'
-    }).subscribe(confirmed => {
-      if (!confirmed) return;
-      this.enrollmentService.cancel(id).subscribe({
+  /// Abre o dialog de cancelamento com opções conforme tipo do plano.
+  onCancel(enrollment: Enrollment, studentName: string): void {
+    const dialogRef = this.dialog.open(CancelEnrollmentDialogComponent, {
+      data: { enrollment, studentName },
+      width: '440px',
+      disableClose: true,
+      panelClass: 'confirm-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.enrollmentService.cancel(
+        enrollment.id,
+        result.cancellationOption,
+        result.substituteStudentId
+      ).subscribe({
         next: () => {
           this.notification.success('Matrícula cancelada com sucesso.');
           this.enrollments = [];

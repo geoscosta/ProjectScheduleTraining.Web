@@ -6,14 +6,13 @@ import {
   Enrollment,
   EnrollmentSummary,
   CreateEnrollmentRequest,
-  RenewEnrollmentRequest
+  RenewEnrollmentRequest,
 } from '../../models/enrollment.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EnrollmentService {
-
   private readonly apiUrl = `${environment.apiUrl}/enrollments`;
 
   constructor(private http: HttpClient) {}
@@ -38,8 +37,17 @@ export class EnrollmentService {
     return this.http.patch<Enrollment>(`${this.apiUrl}/${id}/renew`, request);
   }
 
-  /// Cancela uma matrícula no sistema.
-  cancel(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  /// Cancela uma matrícula com opção de multa ou substituto.
+  cancel(
+    id: string,
+    cancellationOption?: number | null,
+    substituteStudentId?: string | null,
+  ): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, {
+      body: {
+        cancellationOption: cancellationOption ?? null,
+        substituteStudentId: substituteStudentId ?? null,
+      },
+    });
   }
 }

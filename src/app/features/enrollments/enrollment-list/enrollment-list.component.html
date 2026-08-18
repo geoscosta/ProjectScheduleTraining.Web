@@ -32,11 +32,11 @@
         </div>
       </div>
       @if (enrollment.isActive) {
-      <button mat-stroked-button class="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50"
-        (click)="onCancel(enrollment.id, enrollment.student?.name || 'este aluno')">
-        <mat-icon class="text-sm">cancel</mat-icon>
-        Cancelar
-      </button>
+        <button mat-stroked-button class="text-xs h-8 text-red-600 border-red-200 hover:bg-red-50"
+          (click)="onCancel(enrollment, enrollment.student?.name || 'este aluno')">
+          <mat-icon class="text-sm">cancel</mat-icon>
+          Cancelar
+        </button>
       }
     </div>
 

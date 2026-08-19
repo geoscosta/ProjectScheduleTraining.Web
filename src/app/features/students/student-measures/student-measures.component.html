@@ -1,0 +1,389 @@
+<div class="space-y-5 max-w-4xl">
+
+  <!-- Cabeçalho -->
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <button mat-icon-button (click)="onBack()" class="text-slate-500">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Medidas Corporais</h1>
+        <p class="text-sm text-slate-500 mt-0.5">
+          Acompanhe a evolução física do aluno
+        </p>
+      </div>
+    </div>
+    @if (!showForm) {
+      <button mat-raised-button color="primary" (click)="showForm = true">
+        <mat-icon>add</mat-icon>
+        Nova Avaliação
+      </button>
+    }
+  </div>
+
+  @if (isLoading) {
+    <app-loading-spinner />
+  } @else {
+
+    <!-- Cards de resumo da última medição -->
+    @if (latestMeasure) {
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        <div class="bg-white rounded-xl border border-surface-200 p-4 text-center">
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+            Peso
+          </p>
+          <p class="text-2xl font-bold text-indigo-600">
+            {{ latestMeasure.weight | number:'1.1-1' }}
+            <span class="text-sm font-normal text-slate-400">kg</span>
+          </p>
+          @if (getVariation('weight') !== null) {
+            <p class="text-xs mt-1"
+              [class.text-green-500]="(getVariation('weight') ?? 0) < 0"
+              [class.text-red-500]="(getVariation('weight') ?? 0) > 0"
+              [class.text-slate-400]="getVariation('weight') === 0">
+              {{ (getVariation('weight') ?? 0) > 0 ? '+' : '' }}{{ getVariation('weight') }} kg
+            </p>
+          }
+        </div>
+
+        <div class="bg-white rounded-xl border border-surface-200 p-4 text-center">
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+            Altura
+          </p>
+          <p class="text-2xl font-bold text-indigo-600">
+            {{ latestMeasure.height | number:'1.0-0' }}
+            <span class="text-sm font-normal text-slate-400">cm</span>
+          </p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-surface-200 p-4 text-center">
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+            IMC
+          </p>
+          <p class="text-2xl font-bold text-indigo-600">
+            {{ latestMeasure.bmi | number:'1.1-1' }}
+          </p>
+          <app-badge
+            [label]="getBmiLabel(latestMeasure.bmi)"
+            [type]="getBmiBadgeType(latestMeasure.bmi)" />
+        </div>
+
+        <div class="bg-white rounded-xl border border-surface-200 p-4 text-center">
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wide mb-1">
+            % Gordura
+          </p>
+          <p class="text-2xl font-bold text-indigo-600">
+            {{ latestMeasure.bodyFatPercentage !== null
+              ? (latestMeasure.bodyFatPercentage | number:'1.1-1') + '%'
+              : '—' }}
+          </p>
+          @if (getVariation('bodyFatPercentage') !== null) {
+            <p class="text-xs mt-1"
+              [class.text-green-500]="(getVariation('bodyFatPercentage') ?? 0) < 0"
+              [class.text-red-500]="(getVariation('bodyFatPercentage') ?? 0) > 0">
+              {{ (getVariation('bodyFatPercentage') ?? 0) > 0 ? '+' : '' }}
+              {{ getVariation('bodyFatPercentage') }}%
+            </p>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- Gráfico de evolução -->
+    @if (measures.length >= 2) {
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+        <div class="px-5 py-4 border-b border-surface-100">
+          <h2 class="text-sm font-semibold text-slate-700 mb-3">Evolução</h2>
+
+          <!-- Seletor de métrica -->
+          <div class="flex gap-2 flex-wrap">
+            @for (option of metricOptions; track option.key) {
+              <button
+                type="button"
+                class="metric-btn text-xs px-3 py-1.5 rounded-full border font-medium transition-all"
+                [style.border-color]="selectedMetric === option.key ? option.color : ''"
+                [style.background-color]="selectedMetric === option.key ? option.color + '15' : ''"
+                [style.color]="selectedMetric === option.key ? option.color : ''"
+                [class.border-surface-200]="selectedMetric !== option.key"
+                [class.text-slate-400]="selectedMetric !== option.key"
+                (click)="selectedMetric = $any(option.key)">
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Gráfico de barras -->
+        <div class="px-5 py-5">
+          @if (chartData.length > 0) {
+            <div class="flex items-end gap-2 h-40">
+              @for (point of chartData; track point.date) {
+                <div class="flex flex-col items-center gap-1 flex-1 min-w-0">
+                  <span class="text-xs font-semibold text-slate-600">
+                    {{ point.value | number:'1.1-1' }}
+                  </span>
+                  <div class="w-full rounded-t-md transition-all duration-500"
+                    [style.height.%]="getBarHeight(point.value)"
+                    [style.background-color]="selectedColor"
+                    [style.opacity]="0.8"
+                    style="min-height: 8px; max-height: 128px;">
+                  </div>
+                  <span class="text-xs text-slate-400 truncate w-full text-center">
+                    {{ point.date }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- Formulário de nova avaliação -->
+    @if (showForm) {
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-surface-100 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-slate-700">Nova Avaliação Física</h2>
+          <button mat-icon-button (click)="showForm = false">
+            <mat-icon class="text-slate-400">close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="px-6 py-5 space-y-5">
+
+            <!-- Data -->
+            <div class="field">
+              <label class="field__label">
+                Data da avaliação <span class="field__required">*</span>
+              </label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">event</mat-icon>
+                <input class="field__input field__input--datepicker"
+                  [matDatepicker]="picker" formControlName="measureDate"
+                  placeholder="dd/mm/aaaa">
+                <mat-datepicker-toggle class="field__datepicker-toggle" [for]="picker" />
+                <mat-datepicker #picker />
+              </div>
+            </div>
+
+            <!-- Peso e Altura -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="field">
+                <label class="field__label">
+                  Peso (kg) <span class="field__required">*</span>
+                </label>
+                <div class="field__input-wrapper">
+                  <mat-icon class="field__icon">monitor_weight</mat-icon>
+                  <input class="field__input" formControlName="weight"
+                    type="number" step="0.1" placeholder="Ex: 75.5">
+                </div>
+              </div>
+              <div class="field">
+                <label class="field__label">
+                  Altura (cm) <span class="field__required">*</span>
+                </label>
+                <div class="field__input-wrapper">
+                  <mat-icon class="field__icon">height</mat-icon>
+                  <input class="field__input" formControlName="height"
+                    type="number" step="0.1" placeholder="Ex: 170">
+                </div>
+              </div>
+            </div>
+
+            <!-- Circunferências -->
+            <div>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                Circunferências (cm)
+              </p>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+                <div class="field">
+                  <label class="field__label">Peito</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="chestCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">Cintura</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="waistCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">Quadril</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="hipCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">Braço</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="armCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">Coxa</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="thighCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">Panturrilha</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">straighten</mat-icon>
+                    <input class="field__input" formControlName="calfCircumference"
+                      type="number" step="0.1" placeholder="—">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Composição corporal -->
+            <div>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">
+                Composição Corporal (%)
+              </p>
+              <div class="grid grid-cols-2 gap-4">
+
+                <div class="field">
+                  <label class="field__label">% Gordura</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">percent</mat-icon>
+                    <input class="field__input" formControlName="bodyFatPercentage"
+                      type="number" step="0.1" min="0" max="100" placeholder="—">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="field__label">% Massa Magra</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">percent</mat-icon>
+                    <input class="field__input" formControlName="leanMassPercentage"
+                      type="number" step="0.1" min="0" max="100" placeholder="—">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Observações -->
+            <div class="field">
+              <label class="field__label">Observações</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">notes</mat-icon>
+                <input class="field__input" formControlName="notes"
+                  type="text" placeholder="Observações do avaliador">
+              </div>
+            </div>
+
+          </div>
+
+          <div class="px-6 py-4 bg-slate-50 flex items-center justify-end gap-3">
+            <button mat-stroked-button type="button" (click)="showForm = false">
+              Cancelar
+            </button>
+            <button mat-raised-button color="primary" type="submit"
+              [disabled]="form.invalid || isSaving">
+              @if (isSaving) {
+                <mat-spinner diameter="18" class="inline-block mr-2" />
+              }
+              Salvar Medidas
+            </button>
+          </div>
+
+        </form>
+      </div>
+    }
+
+    <!-- Histórico de avaliações -->
+    <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-surface-100">
+        <h2 class="text-sm font-semibold text-slate-700">
+          Histórico ({{ measures.length }} avaliações)
+        </h2>
+      </div>
+
+      @if (measures.length === 0) {
+        <div class="px-5 py-10 text-center">
+          <mat-icon class="text-slate-300 text-5xl mb-2">straighten</mat-icon>
+          <p class="text-sm text-slate-500">Nenhuma avaliação registrada.</p>
+          <button mat-stroked-button class="mt-3 text-xs"
+            (click)="showForm = true">
+            Registrar primeira avaliação
+          </button>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 border-b border-surface-200">
+              <tr>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Data</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Peso</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">IMC</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Cintura</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">% Gordura</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">% Magra</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-100">
+              @for (measure of measures; track measure.id) {
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-3 font-medium text-slate-700">
+                    {{ measure.measureDate | date:'dd/MM/yyyy' }}
+                    @if (measure === latestMeasure) {
+                      <span class="ml-2 text-xs bg-indigo-100 text-indigo-600
+                        px-1.5 py-0.5 rounded-full">Atual</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-right text-slate-600">
+                    {{ measure.weight | number:'1.1-1' }} kg
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-medium" [class]="
+                      measure.bmi < 18.5 ? 'text-blue-500' :
+                      measure.bmi < 25 ? 'text-green-500' :
+                      measure.bmi < 30 ? 'text-yellow-500' : 'text-red-500'">
+                      {{ measure.bmi | number:'1.1-1' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-right text-slate-600">
+                    {{ measure.waistCircumference ? (measure.waistCircumference | number:'1.1-1') + ' cm' : '—' }}
+                  </td>
+                  <td class="px-4 py-3 text-right text-slate-600">
+                    {{ measure.bodyFatPercentage ? (measure.bodyFatPercentage | number:'1.1-1') + '%' : '—' }}
+                  </td>
+                  <td class="px-4 py-3 text-right text-slate-600">
+                    {{ measure.leanMassPercentage ? (measure.leanMassPercentage | number:'1.1-1') + '%' : '—' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+  }
+</div>

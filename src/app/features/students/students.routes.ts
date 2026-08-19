@@ -57,4 +57,9 @@ export const studentsRoutes: Routes = [
         (m) => m.StudentWorkoutFormComponent,
       ),
   },
+  {
+  path: ':id/measures',
+  loadComponent: () =>
+    import('./student-measures/student-measures.component').then(m => m.StudentMeasuresComponent)
+  },
 ];

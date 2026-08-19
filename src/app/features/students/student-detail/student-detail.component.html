@@ -220,65 +220,83 @@
         </div>
       </div>
     </mat-tab>
+
+    <!-- Aba Férias -->
+    <mat-tab label="Férias">
+      <div class="p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">Férias do Aluno</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Gerencie as solicitações de férias conforme contrato
+            </p>
+          </div>
+          <button mat-stroked-button [routerLink]="['/students', student?.id, 'vacations']">
+            <mat-icon>beach_access</mat-icon>
+            Gerenciar Férias
+          </button>
+        </div>
+
+        @if (enrollment) {
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
+            <p class="text-xs text-blue-600 font-medium">Férias de 1 mês</p>
+            <p class="text-xs text-blue-500 mt-1">
+              Pagamento normal · Aviso 30 dias
+            </p>
+          </div>
+          <div class="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
+            <p class="text-xs text-amber-600 font-medium">Férias de 15 dias</p>
+            <p class="text-xs text-amber-500 mt-1">
+              50% da mensalidade · Garante a vaga
+            </p>
+          </div>
+        </div>
+        } @else {
+        <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+          <p class="text-xs text-slate-500">
+            O aluno precisa ter uma matrícula ativa para solicitar férias.
+          </p>
+        </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Aba Treino -->
+    <mat-tab label="Treino">
+      <div class="p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">Treino Personalizado</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Ficha de treino atual do aluno
+            </p>
+          </div>
+          <button mat-stroked-button [routerLink]="['/students', student?.id, 'workout']">
+            <mat-icon>fitness_center</mat-icon>
+            Ver Treino
+          </button>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Aba Medidas -->
+    <mat-tab label="Medidas">
+      <div class="p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">Medidas Corporais</p>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Acompanhe a evolução física com gráficos
+            </p>
+          </div>
+          <button mat-stroked-button [routerLink]="['/students', student?.id, 'measures']">
+            <mat-icon>straighten</mat-icon>
+            Ver Medidas
+          </button>
+        </div>
+      </div>
+    </mat-tab>
   </mat-tab-group>
-
-  <!-- Aba Férias -->
-  <mat-tab label="Férias">
-    <div class="p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-slate-700">Férias do Aluno</p>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Gerencie as solicitações de férias conforme contrato
-          </p>
-        </div>
-        <button mat-stroked-button [routerLink]="['/students', student?.id, 'vacations']">
-          <mat-icon>beach_access</mat-icon>
-          Gerenciar Férias
-        </button>
-      </div>
-
-      @if (enrollment) {
-      <div class="grid grid-cols-2 gap-3">
-        <div class="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3">
-          <p class="text-xs text-blue-600 font-medium">Férias de 1 mês</p>
-          <p class="text-xs text-blue-500 mt-1">
-            Pagamento normal · Aviso 30 dias
-          </p>
-        </div>
-        <div class="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
-          <p class="text-xs text-amber-600 font-medium">Férias de 15 dias</p>
-          <p class="text-xs text-amber-500 mt-1">
-            50% da mensalidade · Garante a vaga
-          </p>
-        </div>
-      </div>
-      } @else {
-      <div class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
-        <p class="text-xs text-slate-500">
-          O aluno precisa ter uma matrícula ativa para solicitar férias.
-        </p>
-      </div>
-      }
-    </div>
-  </mat-tab>
   }
-
-  <!-- Aba Treino -->
-  <mat-tab label="Treino">
-    <div class="p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-sm font-medium text-slate-700">Treino Personalizado</p>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Ficha de treino atual do aluno
-          </p>
-        </div>
-        <button mat-stroked-button [routerLink]="['/students', student?.id, 'workout']">
-          <mat-icon>fitness_center</mat-icon>
-          Ver Treino
-        </button>
-      </div>
-    </div>
-  </mat-tab>
 </div>

@@ -1,0 +1,182 @@
+<div class="space-y-5 max-w-3xl">
+
+  <!-- Cabeçalho -->
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <button mat-icon-button (click)="onBack()" class="text-slate-500">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h1 class="text-xl font-bold text-slate-800">Treino Personalizado</h1>
+        <p class="text-sm text-slate-500 mt-0.5">
+          Ficha de treino atual do aluno
+        </p>
+      </div>
+    </div>
+    @if (isTrainerOrAdmin) {
+    <button mat-raised-button color="primary" (click)="onEdit()">
+      <mat-icon>edit</mat-icon>
+      {{ workout ? 'Editar Treino' : 'Criar Treino' }}
+    </button>
+    }
+  </div>
+
+  @if (isLoading) {
+  <app-loading-spinner />
+  } @else if (!workout) {
+
+  <!-- Sem treino -->
+  <div class="bg-white rounded-xl border border-surface-200 p-10 text-center">
+    <mat-icon class="text-slate-300 text-6xl mb-3">fitness_center</mat-icon>
+    <p class="text-sm font-medium text-slate-600">
+      Nenhum treino ativo cadastrado.
+    </p>
+    <p class="text-xs text-slate-400 mt-1">
+      O professor ainda não criou um treino para este aluno.
+    </p>
+    @if (isTrainerOrAdmin) {
+    <button mat-raised-button color="primary" class="mt-4" (click)="onEdit()">
+      <mat-icon>add</mat-icon>
+      Criar Treino
+    </button>
+    }
+  </div>
+
+  } @else {
+
+  <!-- Card do treino -->
+  <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+    <!-- Header -->
+    <div class="px-6 py-5 border-b border-surface-100">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">{{ workout.name }}</h2>
+          @if (workout.description) {
+          <p class="text-sm text-slate-500 mt-1">{{ workout.description }}</p>
+          }
+          <div class="flex items-center gap-3 mt-2">
+            <span class="text-xs text-slate-400 flex items-center gap-1">
+              <mat-icon class="text-xs">person</mat-icon>
+              Prof. {{ workout.trainerName }}
+            </span>
+            <span class="text-xs text-slate-400 flex items-center gap-1">
+              <mat-icon class="text-xs">event</mat-icon>
+              Desde {{ workout.startDate | date:'dd/MM/yyyy' }}
+            </span>
+            @if (workout.endDate) {
+            <span class="text-xs text-slate-400 flex items-center gap-1">
+              <mat-icon class="text-xs">event_available</mat-icon>
+              Até {{ workout.endDate | date:'dd/MM/yyyy' }}
+            </span>
+            }
+          </div>
+        </div>
+        <app-badge [label]="workout.isActive ? 'Ativo' : 'Inativo'" [type]="workout.isActive ? 'success' : 'neutral'" />
+      </div>
+
+      <!-- Resumo -->
+      <div class="grid grid-cols-3 gap-3 mt-4">
+        <div class="bg-indigo-50 rounded-lg px-3 py-2 text-center">
+          <p class="text-lg font-bold text-indigo-600">
+            {{ workout.exercises.length }}
+          </p>
+          <p class="text-xs text-indigo-500">exercícios</p>
+        </div>
+        <div class="bg-indigo-50 rounded-lg px-3 py-2 text-center">
+          <p class="text-lg font-bold text-indigo-600">
+            {{ totalSets }}
+          </p>
+          <p class="text-xs text-indigo-500">séries totais</p>
+        </div>
+        <div class="bg-indigo-50 rounded-lg px-3 py-2 text-center">
+          <p class="text-lg font-bold text-indigo-600">
+            {{ lastExerciseOrder }}
+          </p>
+          <p class="text-xs text-indigo-500">última ordem</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de exercícios -->
+    <div class="divide-y divide-surface-100">
+      @for (exercise of workout.exercises; track exercise.id) {
+      <div class="px-6 py-4">
+        <div class="flex items-start gap-4">
+
+          <!-- Número de ordem -->
+          <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center
+                justify-center flex-shrink-0 mt-0.5">
+            <span class="text-indigo-600 text-sm font-bold">
+              {{ exercise.order }}
+            </span>
+          </div>
+
+          <!-- Dados do exercício -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <p class="text-sm font-semibold text-slate-800">
+                {{ exercise.name }}
+              </p>
+              <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5
+                    rounded-full">
+                {{ exercise.muscleGroup }}
+              </span>
+            </div>
+
+            <!-- Métricas -->
+            <div class="flex items-center gap-4 mt-2 flex-wrap">
+
+              <div class="flex items-center gap-1">
+                <mat-icon class="text-slate-400 text-xs">repeat</mat-icon>
+                <span class="text-xs text-slate-600">
+                  <strong>{{ exercise.sets }}</strong> séries ×
+                  <strong>{{ exercise.repetitions }}</strong> reps
+                </span>
+              </div>
+
+              @if (exercise.load) {
+              <div class="flex items-center gap-1">
+                <mat-icon class="text-slate-400 text-xs">fitness_center</mat-icon>
+                <span class="text-xs text-slate-600">
+                  <strong>{{ exercise.load }}kg</strong>
+                </span>
+              </div>
+              }
+
+              @if (exercise.restSeconds) {
+              <div class="flex items-center gap-1">
+                <mat-icon class="text-slate-400 text-xs">timer</mat-icon>
+                <span class="text-xs text-slate-600">
+                  Descanso: <strong>{{ formatRest(exercise.restSeconds) }}</strong>
+                </span>
+              </div>
+              }
+
+            </div>
+
+            <!-- Observações do exercício -->
+            @if (exercise.notes) {
+            <p class="text-xs text-slate-400 mt-2 italic">
+              {{ exercise.notes }}
+            </p>
+            }
+
+            <!-- Link do vídeo -->
+            @if (exercise.videoUrl) {
+            <a [href]="exercise.videoUrl" target="_blank" class="text-xs text-indigo-500 hover:text-indigo-700
+                    flex items-center gap-1 mt-2">
+              <mat-icon class="text-xs">play_circle</mat-icon>
+              Ver demonstração
+            </a>
+            }
+          </div>
+
+        </div>
+      </div>
+      }
+    </div>
+
+  </div>
+  }
+</div>

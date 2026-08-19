@@ -263,4 +263,22 @@
     </div>
   </mat-tab>
   }
+
+  <!-- Aba Treino -->
+  <mat-tab label="Treino">
+    <div class="p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-700">Treino Personalizado</p>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Ficha de treino atual do aluno
+          </p>
+        </div>
+        <button mat-stroked-button [routerLink]="['/students', student?.id, 'workout']">
+          <mat-icon>fitness_center</mat-icon>
+          Ver Treino
+        </button>
+      </div>
+    </div>
+  </mat-tab>
 </div>

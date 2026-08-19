@@ -1,0 +1,200 @@
+<div class="space-y-5 max-w-3xl">
+
+  <div class="flex items-center gap-3">
+    <button mat-icon-button (click)="onCancel()" class="text-slate-500">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">
+        {{ hasExistingWorkout ? 'Editar Treino' : 'Novo Treino' }}
+      </h1>
+      <p class="text-sm text-slate-500 mt-0.5">
+        Monte a ficha de treino personalizada do aluno
+      </p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <app-loading-spinner />
+  } @else {
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+      <!-- ── Dados do Treino ─────────────────────────────────── -->
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden mb-4">
+        <div class="px-6 py-5 border-b border-surface-100">
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+            Dados do Treino
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div class="field md:col-span-2">
+              <label class="field__label">Nome do treino <span class="field__required">*</span></label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">fitness_center</mat-icon>
+                <input class="field__input" formControlName="name"
+                  placeholder="Ex: Treino A — Superior" type="text">
+              </div>
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <span class="field__error">Nome é obrigatório.</span>
+              }
+            </div>
+
+            <div class="field md:col-span-2">
+              <label class="field__label">Descrição</label>
+              <div class="field__input-wrapper">
+                <mat-icon class="field__icon">notes</mat-icon>
+                <input class="field__input" formControlName="description"
+                  placeholder="Objetivo, observações gerais..." type="text">
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Exercícios ─────────────────────────────────────── -->
+      <div class="bg-white rounded-xl border border-surface-200 overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-surface-100 flex items-center justify-between">
+          <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            Exercícios ({{ exercises.length }})
+          </h2>
+          <button mat-stroked-button type="button" class="text-xs" (click)="addExercise()">
+            <mat-icon>add</mat-icon>
+            Adicionar
+          </button>
+        </div>
+
+        <div cdkDropList (cdkDropListDropped)="onDrop($event)"
+          class="divide-y divide-surface-100">
+
+          @for (exercise of exercises.controls; track exercise; let i = $index) {
+            <div cdkDrag [formGroup]="$any(exercise)"
+              class="px-6 py-5 hover:bg-slate-50 transition-colors">
+
+              <!-- Header do exercício -->
+              <div class="flex items-center gap-3 mb-4">
+                <div cdkDragHandle class="cursor-grab text-slate-300 hover:text-slate-500">
+                  <mat-icon>drag_indicator</mat-icon>
+                </div>
+                <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center
+                  justify-center flex-shrink-0">
+                  <span class="text-indigo-600 text-xs font-bold">{{ i + 1 }}</span>
+                </div>
+                <span class="text-sm font-medium text-slate-700 flex-1">
+                  {{ exercise.get('name')?.value || 'Exercício ' + (i + 1) }}
+                </span>
+                <button mat-icon-button type="button" class="text-red-400"
+                  (click)="removeExercise(i)">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 ml-10">
+
+                <!-- Nome -->
+                <div class="field md:col-span-2">
+                  <label class="field__label">Exercício <span class="field__required">*</span></label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">sports_gymnastics</mat-icon>
+                    <input class="field__input" formControlName="name"
+                      placeholder="Ex: Supino reto com barra" type="text">
+                  </div>
+                </div>
+
+                <!-- Grupo muscular -->
+                <div class="field">
+                  <label class="field__label">Grupo muscular <span class="field__required">*</span></label>
+                  <mat-select class="field__select" formControlName="muscleGroup">
+                    @for (group of muscleGroups; track group) {
+                      <mat-option [value]="group">{{ group }}</mat-option>
+                    }
+                  </mat-select>
+                </div>
+
+                <!-- Séries -->
+                <div class="field">
+                  <label class="field__label">Séries <span class="field__required">*</span></label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">repeat</mat-icon>
+                    <input class="field__input" formControlName="sets"
+                      type="number" min="1" max="20" placeholder="3">
+                  </div>
+                </div>
+
+                <!-- Repetições -->
+                <div class="field">
+                  <label class="field__label">Repetições <span class="field__required">*</span></label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">tag</mat-icon>
+                    <input class="field__input" formControlName="repetitions"
+                      type="text" placeholder="Ex: 12 ou 8-12">
+                  </div>
+                </div>
+
+                <!-- Carga -->
+                <div class="field">
+                  <label class="field__label">Carga (kg)</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">fitness_center</mat-icon>
+                    <input class="field__input" formControlName="load"
+                      type="number" min="0" step="0.5" placeholder="Ex: 20">
+                  </div>
+                </div>
+
+                <!-- Descanso -->
+                <div class="field">
+                  <label class="field__label">Descanso (segundos)</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">timer</mat-icon>
+                    <input class="field__input" formControlName="restSeconds"
+                      type="number" min="0" max="600" placeholder="Ex: 60">
+                  </div>
+                </div>
+
+                <!-- Observações -->
+                <div class="field md:col-span-2">
+                  <label class="field__label">Observações técnicas</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">tips_and_updates</mat-icon>
+                    <input class="field__input" formControlName="notes"
+                      type="text" placeholder="Ex: Manter escápulas retraídas">
+                  </div>
+                </div>
+
+                <!-- Vídeo -->
+                <div class="field md:col-span-2">
+                  <label class="field__label">Link do vídeo (opcional)</label>
+                  <div class="field__input-wrapper">
+                    <mat-icon class="field__icon">play_circle</mat-icon>
+                    <input class="field__input" formControlName="videoUrl"
+                      type="url" placeholder="https://youtube.com/...">
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- Ações -->
+        <div class="px-6 py-4 bg-slate-50 flex items-center justify-between">
+          <button mat-stroked-button type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="form.invalid || isSaving">
+            @if (isSaving) {
+              <mat-spinner diameter="18" class="inline-block mr-2" />
+            }
+            {{ hasExistingWorkout ? 'Salvar Alterações' : 'Criar Treino' }}
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+  }
+</div>

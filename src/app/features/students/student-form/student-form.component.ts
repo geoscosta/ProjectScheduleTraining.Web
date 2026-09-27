@@ -12,6 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { NotificationService } from '../../../core/services/notification/notification.service';
 import { StudentService } from '../../../core/services/student/student.service';
+import { AppSelectComponent, SelectOption } from '../../../shared/components/app-select/app-select.component';
 
 @Component({
   selector: 'app-student-form',
@@ -27,7 +28,8 @@ import { StudentService } from '../../../core/services/student/student.service';
     MatNativeDateModule,
     MatSelectModule,
     MatCheckboxModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    AppSelectComponent
   ],
   templateUrl: './student-form.component.html',
   styleUrl: './student-form.component.scss'
@@ -40,21 +42,21 @@ export class StudentFormComponent implements OnInit {
   isEditMode = false;
   studentId: string | null = null;
 
-  /// Opções de estado civil para o select.
-  maritalStatusOptions = [
-    { value: 1, label: 'Solteiro(a)' },
-    { value: 2, label: 'Casado(a)' },
-    { value: 3, label: 'Divorciado(a)' },
-    { value: 4, label: 'Viúvo(a)' },
-    { value: 5, label: 'União Estável' }
-  ];
+ /// Opções de estado civil no formato SelectOption.
+maritalStatusOptions: SelectOption[] = [
+  { value: 1, label: 'Solteiro(a)' },
+  { value: 2, label: 'Casado(a)' },
+  { value: 3, label: 'Divorciado(a)' },
+  { value: 4, label: 'Viúvo(a)' },
+  { value: 5, label: 'União Estável' }
+];
 
-  /// Estados brasileiros para o select.
-  states = [
-    'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
-    'MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN',
-    'RS','RO','RR','SC','SP','SE','TO'
-  ];
+/// Opções de UF no formato SelectOption.
+stateOptions: SelectOption[] = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA',
+  'MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN',
+  'RS','RO','RR','SC','SP','SE','TO'
+].map(uf => ({ value: uf, label: uf }));
 
   constructor(
     private fb: FormBuilder,

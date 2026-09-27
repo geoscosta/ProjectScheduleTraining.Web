@@ -78,15 +78,14 @@
               }
             </div>
 
-            <div class="field">
-              <label class="field__label">Estado Civil</label>
-              <mat-select class="field__select" formControlName="maritalStatus">
-                <mat-option [value]="null">Não informado</mat-option>
-                @for (option of maritalStatusOptions; track option.value) {
-                  <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                }
-              </mat-select>
-            </div>
+<div class="field">
+  <app-select
+    label="Estado Civil"
+    placeholder="Selecione o estado civil"
+    icon="favorite"
+    formControlName="maritalStatus"
+    [options]="maritalStatusOptions" />
+</div>
 
             <div class="field">
               <label class="field__label">E-mail <span class="field__required">*</span></label>
@@ -188,15 +187,15 @@
               </div>
             </div>
 
-            <div class="field">
-              <label class="field__label">Estado</label>
-              <mat-select class="field__select" formControlName="state">
-                <mat-option value="">Selecione</mat-option>
-                @for (uf of states; track uf) {
-                  <mat-option [value]="uf">{{ uf }}</mat-option>
-                }
-              </mat-select>
-            </div>
+            <!-- Estado (UF) -->
+<div class="field">
+  <app-select
+    label="Estado"
+    placeholder="Selecione o estado"
+    icon="place"
+    formControlName="state"
+    [options]="stateOptions" />
+</div>
 
           </div>
         </div>

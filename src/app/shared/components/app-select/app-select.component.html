@@ -1,0 +1,59 @@
+<div class="select-field"
+  [class.select-field--error]="hasError"
+  [class.select-field--disabled]="disabled">
+
+  <!-- Label -->
+  @if (label) {
+    <label class="select-field__label">{{ label }}</label>
+  }
+
+  <!-- Trigger -->
+  <div class="select-field__trigger"
+    [class.select-field__trigger--open]="isOpen"
+    [class.select-field__trigger--disabled]="disabled"
+    (click)="toggle()">
+
+    @if (icon) {
+      <mat-icon class="select-field__icon">{{ icon }}</mat-icon>
+    }
+
+    <span class="select-field__value"
+      [class.select-field__value--placeholder]="!selectedLabel">
+      {{ selectedLabel || placeholder }}
+    </span>
+
+    <mat-icon class="select-field__chevron"
+      [class.select-field__chevron--open]="isOpen">
+      expand_more
+    </mat-icon>
+
+  </div>
+
+  <!-- Dropdown -->
+  @if (isOpen && !disabled) {
+    <div class="select-field__dropdown">
+      @for (option of options; track option.value) {
+        <div class="select-field__option"
+          [class.select-field__option--selected]="isSelected(option)"
+          (click)="select(option)">
+          @if (isSelected(option)) {
+            <mat-icon class="select-field__option-check">check</mat-icon>
+          }
+          <span>{{ option.label }}</span>
+        </div>
+      }
+      @if (options.length === 0) {
+        <div class="select-field__empty">Nenhuma opção disponível</div>
+      }
+    </div>
+  }
+
+  <!-- Erro -->
+  @if (hasError && errorMessage) {
+    <span class="select-field__error">
+      <mat-icon class="select-field__error-icon">error_outline</mat-icon>
+      {{ errorMessage }}
+    </span>
+  }
+
+</div>

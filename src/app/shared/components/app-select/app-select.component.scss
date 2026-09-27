@@ -1,0 +1,180 @@
+@use '../../../../assets/scss/colors' as *;
+@use '../../../../assets/scss/spacing' as *;
+
+.select-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $space-1;
+
+  /// Label do campo.
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-neutral-600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /// Trigger — área clicável que abre o dropdown.
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    height: 40px;
+    padding: 0 $space-3;
+    border: 1px solid $color-neutral-300;
+    border-radius: 0.5rem;
+    background: $color-white;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    user-select: none;
+
+    &:hover:not(&--disabled) {
+      border-color: $color-neutral-400;
+    }
+
+    &--open {
+      border-color: $color-primary-400;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    &--disabled {
+      background: $color-neutral-100;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  /// Ícone à esquerda.
+  &__icon {
+    font-size: 16px !important;
+    width: 16px !important;
+    height: 16px !important;
+    color: $color-neutral-400;
+    flex-shrink: 0;
+  }
+
+  /// Valor ou placeholder.
+  &__value {
+    flex: 1;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    color: $color-neutral-800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &--placeholder {
+      color: $color-neutral-400;
+    }
+  }
+
+  /// Chevron animado.
+  &__chevron {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    color: $color-neutral-400;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  /// Dropdown com lista de opções.
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: $color-white;
+    border: 1px solid $color-neutral-200;
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    padding: $space-1 0;
+
+    /// Scrollbar customizada.
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background: $color-neutral-300; border-radius: 4px; }
+  }
+
+  /// Opção individual do dropdown.
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: $space-2 $space-3;
+    font-size: 0.875rem;
+    font-family: 'Inter', sans-serif;
+    color: $color-neutral-700;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+
+    &:hover {
+      background: $color-neutral-50;
+    }
+
+    &--selected {
+      color: $color-primary-600;
+      font-weight: 600;
+      background: $color-primary-50;
+
+      &:hover {
+        background: $color-primary-100;
+      }
+    }
+  }
+
+  /// Ícone de check na opção selecionada.
+  &__option-check {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+    color: $color-primary-500;
+    flex-shrink: 0;
+  }
+
+  /// Mensagem quando não há opções.
+  &__empty {
+    padding: $space-3;
+    text-align: center;
+    font-size: 0.875rem;
+    color: $color-neutral-400;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /// Mensagem de erro.
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: $space-1;
+    font-size: 0.75rem;
+    color: $color-danger-600;
+  }
+
+  &__error-icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /// Estado de erro — borda vermelha.
+  &--error &__trigger {
+    border-color: $color-danger-500;
+
+    &--open {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    }
+  }
+
+  &--error &__label {
+    color: $color-danger-600;
+  }
+}

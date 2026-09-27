@@ -126,6 +126,7 @@ export class StudentParqComponent implements OnInit {
 
   /// Carrega a avaliação PAR-Q existente do aluno se houver.
   private loadExistingAssessment(): void {
+    this.isLoading = true;
     this.http
       .get<ParQResponse>(
         `${environment.apiUrl}/ParQAssessments/student/${this.studentId}/latest`,

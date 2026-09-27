@@ -178,36 +178,45 @@ export class StudentFormComponent implements OnInit {
   }
 
   /// Salva o aluno — cria ou atualiza conforme o modo.
-  onSubmit(): void {
-    if (this.form.invalid) return;
+onSubmit(): void {
+  if (this.form.invalid) return;
 
-    this.isSaving = true;
-    const data = this.form.getRawValue();
+  const data = this.form.getRawValue();
 
-    if (this.isEditMode) {
-      this.studentService.update(this.studentId!, data).subscribe({
-        next: () => {
-          this.notification.success('Aluno atualizado com sucesso.');
-          this.router.navigate(['/students']);
-        },
-        error: (err) => {
-          this.isSaving = false;
-          this.notification.error(err.error?.errors?.[0] || 'Erro ao atualizar aluno.');
-        }
-      });
-    } else {
-      this.studentService.create(data).subscribe({
-        next: () => {
-          this.notification.success('Aluno cadastrado com sucesso.');
-          this.router.navigate(['/students']);
-        },
-        error: (err) => {
-          this.isSaving = false;
-          this.notification.error(err.error?.errors?.[0] || 'Erro ao cadastrar aluno.');
-        }
-      });
-    }
+  /// Valida se os termos foram aceitos antes de salvar.
+  if (!data.imageRightsAccepted || !data.internalRegulationAccepted) {
+    this.notification.warning(
+      'É necessário aceitar a Cessão de Imagem e o Regulamento Interno para cadastrar o aluno.'
+    );
+    return;
   }
+
+  this.isSaving = true;
+
+  if (this.isEditMode) {
+    this.studentService.update(this.studentId!, data).subscribe({
+      next: () => {
+        this.notification.success('Aluno atualizado com sucesso.');
+        this.router.navigate(['/students']);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.notification.error(err.error?.errors?.[0] || 'Erro ao atualizar aluno.');
+      }
+    });
+  } else {
+    this.studentService.create(data).subscribe({
+      next: () => {
+        this.notification.success('Aluno cadastrado com sucesso.');
+        this.router.navigate(['/students']);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.notification.error(err.error?.errors?.[0] || 'Erro ao cadastrar aluno.');
+      }
+    });
+  }
+}
 
   /// Cancela e volta para a listagem.
   onCancel(): void {

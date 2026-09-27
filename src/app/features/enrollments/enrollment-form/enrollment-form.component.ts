@@ -170,7 +170,7 @@ export class EnrollmentFormComponent implements OnInit {
       next: (plans) => {
         this.plans = plans;
         /// Exibe apenas planos ativos.
-        this.activePlans = plans.filter(p => p.isActive);
+        this.activePlans = plans.filter(p => p.isActive === true);
         this.checkLoadingComplete();
       },
       error: () => {

@@ -17,8 +17,12 @@ export interface ScheduleSummary {
   date: string;
   startTime: string;
   endTime: string;
+  sessionType: SessionType;
+  maxCapacity: number;
+  occupiedSlots: number;
   availableSlots: number;
   status: ScheduleStatus;
+  notes?: string;
 }
 
 export interface CreateScheduleRequest {
@@ -35,4 +39,10 @@ export enum ScheduleStatus {
   Full = 2,
   Blocked = 3,
   Cancelled = 4
+}
+
+export enum SessionType {
+  Pilates          = 1,
+  SemiPersonalized = 2,
+  Individual       = 3
 }

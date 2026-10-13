@@ -41,30 +41,39 @@
             }
           </div>
 
+          <!-- Tipo de sessão -->
+          <div class="field">
+            <app-select
+              label="Tipo de sessão *"
+              placeholder="Selecione o tipo de aula"
+              icon="fitness_center"
+              formControlName="sessionType"
+              [options]="sessionTypeOptions"
+              [hasError]="!!(form.get('sessionType')?.invalid && form.get('sessionType')?.touched)"
+              errorMessage="Tipo de sessão é obrigatório." />
+          </div>
+
           <!-- Horário -->
           <div class="field">
-            <label class="field__label">
-              Horário de início <span class="field__required">*</span>
-            </label>
-            <mat-select class="field__select" formControlName="startTime">
-              @for (time of availableTimes; track time) {
-                <mat-option [value]="time">{{ time.substring(0, 5) }}</mat-option>
-              }
-            </mat-select>
-            @if (form.get('startTime')?.invalid && form.get('startTime')?.touched) {
-              <span class="field__error">Horário é obrigatório.</span>
-            }
+            <app-select
+              label="Horário de início *"
+              placeholder="Selecione o horário"
+              icon="schedule"
+              formControlName="startTime"
+              [options]="timeOptions"
+              [hasError]="!!(form.get('startTime')?.invalid && form.get('startTime')?.touched)"
+              errorMessage="Horário é obrigatório." />
           </div>
 
           <!-- Info -->
           <div class="flex items-start gap-2 bg-blue-50 border border-blue-100
             rounded-lg p-3">
             <mat-icon class="text-blue-500 text-base mt-0.5 flex-shrink-0">info</mat-icon>
-            <p class="text-xs text-blue-700">
-              Cada aula tem duração de <strong>1 hora</strong> e capacidade
-              máxima de <strong>5 alunos</strong>. Aulas são permitidas de
-              segunda a sexta, das 06h às 19h.
-            </p>
+            <div class="text-xs text-blue-700 space-y-1">
+              <p>Cada aula tem duração de <strong>50 minutos</strong>.</p>
+              <p>Horários permitidos: <strong>06h–12h</strong> e <strong>15h–21h</strong>.</p>
+              <p>Capacidade definida automaticamente pelo tipo de sessão selecionado.</p>
+            </div>
           </div>
 
         </div>

@@ -2,17 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
 import { ScheduleService } from '../../../core/services/schedule/schedule.service';
+import { NotificationService } from '../../../core/services/notification/notification.service';
+import { AppSelectComponent, SelectOption } from '../../../shared/components/app-select/app-select.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-schedule-form',
@@ -21,16 +19,13 @@ import { ScheduleService } from '../../../core/services/schedule/schedule.servic
     CommonModule,
     RouterLink,
     ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSelectModule
+    AppSelectComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './schedule-form.component.html',
   styleUrl: './schedule-form.component.scss'
@@ -41,24 +36,40 @@ export class ScheduleFormComponent {
   isSaving = false;
   today = new Date();
 
-  /// Opções de horário disponíveis para seleção.
-  availableTimes = [
-    '06:00:00', '07:00:00', '08:00:00', '09:00:00',
-    '10:00:00', '11:00:00', '12:00:00', '13:00:00',
-    '14:00:00', '15:00:00', '16:00:00', '17:00:00',
-    '18:00:00', '19:00:00'
+  /// Opções de horário disponíveis conforme horário de funcionamento do estúdio.
+  /// Segunda a Sexta: 06h-12h e 15h-21h.
+  timeOptions: SelectOption[] = [
+    { value: '06:00:00', label: '06:00' },
+    { value: '07:00:00', label: '07:00' },
+    { value: '08:00:00', label: '08:00' },
+    { value: '09:00:00', label: '09:00' },
+    { value: '10:00:00', label: '10:00' },
+    { value: '11:00:00', label: '11:00' },
+    { value: '15:00:00', label: '15:00' },
+    { value: '16:00:00', label: '16:00' },
+    { value: '17:00:00', label: '17:00' },
+    { value: '18:00:00', label: '18:00' },
+    { value: '19:00:00', label: '19:00' },
+    { value: '20:00:00', label: '20:00' },
+  ];
+
+  /// Opções de tipo de sessão com capacidade máxima por turma.
+  sessionTypeOptions: SelectOption[] = [
+    { value: 1, label: 'Pilates — máx. 3 alunos' },
+    { value: 2, label: 'Semi Personalizado — máx. 4 alunos' },
+    { value: 3, label: 'Individualizado — máx. 1 aluno' }
   ];
 
   constructor(
     private fb: FormBuilder,
     private scheduleService: ScheduleService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private notification: NotificationService
   ) {
-    /// Inicializa o formulário com as validações necessárias.
     this.form = this.fb.group({
-      date: ['', [Validators.required]],
-      startTime: ['', [Validators.required]]
+      date:        ['', [Validators.required]],
+      startTime:   ['', [Validators.required]],
+      sessionType: ['', [Validators.required]]
     });
   }
 
@@ -74,27 +85,25 @@ export class ScheduleFormComponent {
       : date;
 
     const request = {
-      date: dateStr,
-      startTime: this.form.get('startTime')?.value
+      date:        dateStr,
+      startTime:   this.form.get('startTime')?.value,
+      sessionType: this.form.get('sessionType')?.value
     };
 
     this.scheduleService.create(request).subscribe({
       next: () => {
-        this.snackBar.open('Horário criado com sucesso.', 'Fechar', { duration: 3000 });
+        this.notification.success('Horário criado com sucesso.');
         this.router.navigate(['/schedules']);
       },
       error: (err) => {
         this.isSaving = false;
-        this.snackBar.open(
-          err.error?.errors?.[0] || 'Erro ao criar horário.',
-          'Fechar',
-          { duration: 3000 }
+        this.notification.error(
+          err.error?.errors?.[0] || 'Erro ao criar horário.'
         );
       }
     });
   }
 
-  /// Cancela e volta para a listagem.
   onCancel(): void {
     this.router.navigate(['/schedules']);
   }

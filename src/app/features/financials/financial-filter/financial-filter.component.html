@@ -18,15 +18,37 @@
       <form [formGroup]="form" (ngSubmit)="onFilter()">
         <div class="filter__grid">
 
+          <!-- Aluno com autocomplete -->
           <div class="field">
             <label class="field__label">Aluno</label>
             <div class="field__input-wrapper">
               <mat-icon class="field__icon">person</mat-icon>
               <input class="field__input" formControlName="studentName"
-                placeholder="Digite o nome do aluno" type="text">
+                placeholder="Digite o nome do aluno (mín. 3 letras)"
+                type="text"
+                [matAutocomplete]="autoStudent">
+              <mat-autocomplete #autoStudent="matAutocomplete">
+                @for (student of studentSuggestions; track student.id) {
+                  <mat-option
+                    [value]="student.name"
+                    (click)="onSelectStudent(student)">
+                    <div class="flex items-center gap-2">
+                      <mat-icon class="text-slate-400 text-sm">person</mat-icon>
+                      <span>{{ student.name }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
             </div>
+            @if (selectedStudentId) {
+              <span class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                <mat-icon class="text-xs">check_circle</mat-icon>
+                Aluno selecionado
+              </span>
+            }
           </div>
 
+          <!-- Status -->
           <div class="field">
             <label class="field__label">Status</label>
             <mat-select class="field__select" formControlName="status">
@@ -37,6 +59,7 @@
             </mat-select>
           </div>
 
+          <!-- Vencimento De -->
           <div class="field">
             <label class="field__label">Vencimento — De</label>
             <div class="field__input-wrapper">
@@ -51,6 +74,7 @@
             </div>
           </div>
 
+          <!-- Vencimento Até -->
           <div class="field">
             <label class="field__label">Vencimento — Até</label>
             <div class="field__input-wrapper">

@@ -60,4 +60,9 @@ export class FinancialService {
       `${this.apiUrl}/report?month=${month}&year=${year}`,
     );
   }
+
+  /// Retorna todas as cobranças do sistema.
+  getAll(): Observable<FinancialSummary[]> {
+    return this.http.get<FinancialSummary[]>(this.apiUrl);
+  }
 }

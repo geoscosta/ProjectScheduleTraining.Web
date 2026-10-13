@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,14 +6,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { FinancialStatus } from '../../../core/models/financial.model';
+import { StudentSummary } from '../../../core/models/student.model';
+import { StudentService } from '../../../core/services/student/student.service';
 
 /// Modelo de filtro financeiro.
 export interface FinancialFilter {
-  studentName: string;
+  studentId: string | null;
   status: FinancialStatus | null;
   dueDateStart: Date | null;
   dueDateEnd: Date | null;
@@ -30,8 +32,7 @@ export interface FinancialFilter {
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatInputModule,
-    MatFormFieldModule
+    MatAutocompleteModule
   ],
   templateUrl: './financial-filter.component.html',
   styleUrl: './financial-filter.component.scss',
@@ -48,64 +49,110 @@ export interface FinancialFilter {
     ])
   ]
 })
-export class FinancialFilterComponent implements OnInit {
+export class FinancialFilterComponent implements OnInit, OnDestroy {
 
-  /// Emite o filtro preenchido ao clicar em Filtrar.
   @Output() filterApplied = new EventEmitter<FinancialFilter>();
-
-  /// Emite evento ao clicar em Limpar.
   @Output() filterCleared = new EventEmitter<void>();
 
-  /// Controla se o painel está expandido ou recolhido.
   isExpanded = true;
-
   form!: FormGroup;
 
-  /// Opções de status financeiro.
+  /// Lista de alunos para o autocomplete.
+  private allStudents: StudentSummary[] = [];
+  studentSuggestions: StudentSummary[] = [];
+  selectedStudentId: string | null = null;
+
+  private destroy$ = new Subject<void>();
+
   statusOptions = [
-    { value: FinancialStatus.Pending, label: 'Pendente' },
-    { value: FinancialStatus.Paid, label: 'Pago' },
-    { value: FinancialStatus.Overdue, label: 'Vencido' },
+    { value: FinancialStatus.Pending,   label: 'Pendente' },
+    { value: FinancialStatus.Paid,      label: 'Pago' },
+    { value: FinancialStatus.Overdue,   label: 'Vencido' },
     { value: FinancialStatus.Cancelled, label: 'Cancelado' }
   ];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private studentService: StudentService
+  ) {}
 
   ngOnInit(): void {
-    /// Inicializa o formulário com os campos do filtro financeiro.
     this.form = this.fb.group({
-      studentName: [''],
-      status: [null],
+      studentName:  [''],
+      status:       [null],
       dueDateStart: [null],
-      dueDateEnd: [null]
+      dueDateEnd:   [null]
+    });
+
+    /// Carrega alunos para o autocomplete.
+    this.studentService.getAll().subscribe({
+      next: (students) => this.allStudents = students,
+      error: () => this.allStudents = []
+    });
+
+    /// Filtra sugestões a partir do 3º caractere.
+    this.form.get('studentName')!.valueChanges.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(value => {
+      /// Se o valor mudou manualmente, limpa o studentId selecionado.
+      if (value !== this.getSelectedStudentName()) {
+        this.selectedStudentId = null;
+      }
+
+      if (value && value.length >= 3) {
+        const term = value.toLowerCase();
+        this.studentSuggestions = this.allStudents
+          .filter(s => s.name.toLowerCase().includes(term))
+          .slice(0, 5);
+      } else {
+        this.studentSuggestions = [];
+      }
     });
   }
 
-  /// Alterna entre expandido e recolhido.
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /// Retorna o nome do aluno selecionado.
+  private getSelectedStudentName(): string {
+    if (!this.selectedStudentId) return '';
+    return this.allStudents.find(s => s.id === this.selectedStudentId)?.name || '';
+  }
+
+  /// Seleciona um aluno do autocomplete.
+  onSelectStudent(student: StudentSummary): void {
+    this.selectedStudentId = student.id;
+    this.form.get('studentName')?.setValue(student.name, { emitEvent: false });
+    this.studentSuggestions = [];
+  }
+
   toggleExpand(): void {
     this.isExpanded = !this.isExpanded;
   }
 
-  /// Verifica se algum campo está preenchido.
   get hasActiveFilters(): boolean {
     const { studentName, status, dueDateStart, dueDateEnd } = this.form.value;
     return !!studentName || status !== null || !!dueDateStart || !!dueDateEnd;
   }
 
-  /// Emite os valores do filtro ao clicar em Filtrar.
   onFilter(): void {
-    this.filterApplied.emit(this.form.value);
+    this.filterApplied.emit({
+      studentId:    this.selectedStudentId,
+      status:       this.form.get('status')?.value,
+      dueDateStart: this.form.get('dueDateStart')?.value,
+      dueDateEnd:   this.form.get('dueDateEnd')?.value
+    });
     this.isExpanded = false;
   }
 
-  /// Limpa todos os campos e emite o evento de limpeza.
   onClear(): void {
-    this.form.reset({
-      studentName: '',
-      status: null,
-      dueDateStart: null,
-      dueDateEnd: null
-    });
+    this.form.reset({ studentName: '', status: null, dueDateStart: null, dueDateEnd: null });
+    this.selectedStudentId = null;
+    this.studentSuggestions = [];
     this.filterCleared.emit();
   }
 }

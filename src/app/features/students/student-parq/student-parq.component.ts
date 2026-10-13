@@ -125,18 +125,26 @@ export class StudentParqComponent implements OnInit {
   }
 
   /// Carrega a avaliação PAR-Q existente do aluno se houver.
+  allAssessments: ParQResponse[] = [];
+
   private loadExistingAssessment(): void {
     this.isLoading = true;
+
+    /// Carrega todas as avaliações do histórico.
     this.http
-      .get<ParQResponse>(
-        `${environment.apiUrl}/ParQAssessments/student/${this.studentId}/latest`,
-      )
+      .get<
+        ParQResponse[]
+      >(`${environment.apiUrl}/ParQAssessments/student/${this.studentId}`)
       .subscribe({
-        next: (assessment) => {
-          this.existingAssessment = assessment;
+        next: (assessments) => {
+          this.allAssessments = assessments;
+          /// A mais recente é sempre a primeira da lista.
+          this.existingAssessment =
+            assessments.length > 0 ? assessments[0] : null;
           this.isLoading = false;
         },
         error: () => {
+          this.allAssessments = [];
           this.existingAssessment = null;
           this.isLoading = false;
         },

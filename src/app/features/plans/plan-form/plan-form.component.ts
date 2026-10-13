@@ -1,7 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,7 +26,7 @@ const PLAN_TYPE_DURATION: Record<PlanType, number> = {
   [PlanType.SemiAnnual]: 6,
   [PlanType.Annual]: 12,
   [PlanType.ComboStrengthPilates]: 1,
-  [PlanType.Family]: 1
+  [PlanType.Family]: 1,
 };
 
 /// Sugestões de nomes por tipo de plano baseados no Estúdio Trinca.
@@ -31,40 +36,40 @@ const PLAN_TYPE_NAME_SUGGESTIONS: Record<PlanType, string[]> = {
     'Plano Mensal Pilates 3x',
     'Plano Mensal Personal 2x',
     'Plano Mensal Personal 3x',
-    'Plano Mensal Personal 5x'
+    'Plano Mensal Personal 5x',
   ],
   [PlanType.Quarterly]: [
     'Plano Disciplina Pilates 2x',
     'Plano Disciplina Pilates 3x',
     'Plano Disciplina Personal 2x',
     'Plano Disciplina Personal 3x',
-    'Plano Disciplina Personal 5x'
+    'Plano Disciplina Personal 5x',
   ],
   [PlanType.SemiAnnual]: [
     'Plano Constância Pilates 2x',
     'Plano Constância Pilates 3x',
     'Plano Constância Personal 2x',
     'Plano Constância Personal 3x',
-    'Plano Constância Personal 5x'
+    'Plano Constância Personal 5x',
   ],
   [PlanType.Annual]: [
     'Plano Foco Total Pilates 2x',
     'Plano Foco Total Pilates 3x',
     'Plano Foco Total Personal 3x',
-    'Plano Foco Total Personal 5x'
+    'Plano Foco Total Personal 5x',
   ],
   [PlanType.ComboStrengthPilates]: [
     'Combo Pilates 2x + Personal 2x',
     'Combo Pilates 2x + Personal 3x',
-    'Combo Pilates 3x + Personal 2x'
+    'Combo Pilates 3x + Personal 2x',
   ],
   [PlanType.Family]: [
     'Plano Família Pilates 2x',
     'Plano Família Pilates 3x',
     'Plano Família Personal 2x',
     'Plano Família Personal 3x',
-    'Plano Família Personal 5x'
-  ]
+    'Plano Família Personal 5x',
+  ],
 };
 
 @Component({
@@ -81,13 +86,12 @@ const PLAN_TYPE_NAME_SUGGESTIONS: Record<PlanType, string[]> = {
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
   ],
   templateUrl: './plan-form.component.html',
-  styleUrl: './plan-form.component.scss'
+  styleUrl: './plan-form.component.scss',
 })
 export class PlanFormComponent implements OnInit, OnDestroy {
-
   form: FormGroup;
   isLoading = false;
   isSaving = false;
@@ -107,14 +111,14 @@ export class PlanFormComponent implements OnInit, OnDestroy {
     { value: PlanType.SemiAnnual, label: 'Semestral — Plano Constância' },
     { value: PlanType.Annual, label: 'Anual — Plano Foco Total' },
     { value: PlanType.ComboStrengthPilates, label: 'Combo Pilates + Personal' },
-    { value: PlanType.Family, label: 'Família' }
+    { value: PlanType.Family, label: 'Família' },
   ];
 
   /// Opções de frequência semanal para o select.
   weeklyFrequencies = [
     { value: WeeklyFrequency.TwiceAWeek, label: '2x por semana' },
     { value: WeeklyFrequency.ThreeTimesAWeek, label: '3x por semana' },
-    { value: WeeklyFrequency.FiveTimesAWeek, label: '5x por semana' }
+    { value: WeeklyFrequency.FiveTimesAWeek, label: '5x por semana' },
   ];
 
   constructor(
@@ -122,7 +126,7 @@ export class PlanFormComponent implements OnInit, OnDestroy {
     private planService: PlanService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -130,7 +134,7 @@ export class PlanFormComponent implements OnInit, OnDestroy {
       weeklyFrequency: [null, [Validators.required]],
       durationMonths: [{ value: 1, disabled: true }],
       price: ['', [Validators.required, Validators.min(0.01)]],
-      description: ['', [Validators.maxLength(500)]]
+      description: ['', [Validators.maxLength(500)]],
     });
   }
 
@@ -145,15 +149,16 @@ export class PlanFormComponent implements OnInit, OnDestroy {
     /// Monitora mudanças no tipo do plano para:
     /// 1. Preencher automaticamente a duração em meses
     /// 2. Atualizar as sugestões de nome
-    this.form.get('type')!.valueChanges.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe((type: PlanType) => {
-      if (type !== null) {
-        const duration = PLAN_TYPE_DURATION[type];
-        this.form.get('durationMonths')?.setValue(duration);
-        this.nameSuggestions = PLAN_TYPE_NAME_SUGGESTIONS[type] || [];
-      }
-    });
+    this.form
+      .get('type')!
+      .valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((type: PlanType) => {
+        if (type !== null) {
+          const duration = PLAN_TYPE_DURATION[type];
+          this.form.get('durationMonths')?.setValue(duration);
+          this.nameSuggestions = PLAN_TYPE_NAME_SUGGESTIONS[type] || [];
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -172,7 +177,7 @@ export class PlanFormComponent implements OnInit, OnDestroy {
           weeklyFrequency: plan.weeklyFrequency,
           durationMonths: plan.durationMonths,
           price: plan.price,
-          description: plan.description
+          description: plan.description,
         });
         this.form.get('type')?.disable();
         this.form.get('weeklyFrequency')?.disable();
@@ -181,15 +186,31 @@ export class PlanFormComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.isLoading = false;
-        this.snackBar.open('Erro ao carregar plano.', 'Fechar', { duration: 3000 });
+        this.snackBar.open('Erro ao carregar plano.', 'Fechar', {
+          duration: 3000,
+        });
         this.router.navigate(['/plans']);
-      }
+      },
     });
   }
 
-  /// Seleciona uma sugestão de nome e preenche o campo automaticamente.
+  /// Seleciona sugestão de nome e preenche frequência automaticamente.
   selectNameSuggestion(name: string): void {
     this.form.get('name')?.setValue(name);
+
+    /// Identifica a frequência pelo padrão do nome do chip selecionado.
+    const lower = name.toLowerCase();
+    if (lower.includes('5x')) {
+      this.form
+        .get('weeklyFrequency')
+        ?.setValue(WeeklyFrequency.FiveTimesAWeek);
+    } else if (lower.includes('3x')) {
+      this.form
+        .get('weeklyFrequency')
+        ?.setValue(WeeklyFrequency.ThreeTimesAWeek);
+    } else if (lower.includes('2x')) {
+      this.form.get('weeklyFrequency')?.setValue(WeeklyFrequency.TwiceAWeek);
+    }
   }
 
   /// Retorna o label de duração formatado para exibição.
@@ -200,7 +221,7 @@ export class PlanFormComponent implements OnInit, OnDestroy {
       [PlanType.SemiAnnual]: '6 meses',
       [PlanType.Annual]: '12 meses',
       [PlanType.ComboStrengthPilates]: '1 mês',
-      [PlanType.Family]: '1 mês'
+      [PlanType.Family]: '1 mês',
     };
     return labels[type] || '1 mês';
   }
@@ -215,39 +236,45 @@ export class PlanFormComponent implements OnInit, OnDestroy {
       const updateRequest = {
         name: this.form.get('name')?.value,
         price: this.form.get('price')?.value,
-        description: this.form.get('description')?.value
+        description: this.form.get('description')?.value,
       };
 
       this.planService.update(this.planId!, updateRequest).subscribe({
         next: () => {
-          this.snackBar.open('Plano atualizado com sucesso.', 'Fechar', { duration: 3000 });
+          this.snackBar.open('Plano atualizado com sucesso.', 'Fechar', {
+            duration: 3000,
+          });
           this.router.navigate(['/plans']);
         },
         error: (err) => {
           this.isSaving = false;
           this.snackBar.open(
             err.error?.errors?.[0] || 'Erro ao atualizar plano.',
-            'Fechar', { duration: 3000 }
+            'Fechar',
+            { duration: 3000 },
           );
-        }
+        },
       });
     } else {
       const createRequest = {
-        ...this.form.getRawValue()
+        ...this.form.getRawValue(),
       };
 
       this.planService.create(createRequest).subscribe({
         next: () => {
-          this.snackBar.open('Plano criado com sucesso.', 'Fechar', { duration: 3000 });
+          this.snackBar.open('Plano criado com sucesso.', 'Fechar', {
+            duration: 3000,
+          });
           this.router.navigate(['/plans']);
         },
         error: (err) => {
           this.isSaving = false;
           this.snackBar.open(
             err.error?.errors?.[0] || 'Erro ao criar plano.',
-            'Fechar', { duration: 3000 }
+            'Fechar',
+            { duration: 3000 },
           );
-        }
+        },
       });
     }
   }

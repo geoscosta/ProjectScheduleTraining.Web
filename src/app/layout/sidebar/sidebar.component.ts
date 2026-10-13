@@ -32,7 +32,7 @@ export class SidebarComponent {
     { label: 'Alunos', icon: 'people_alt', route: '/students',
       roles: [UserRole.Admin, UserRole.Receptionist] },
     { label: 'Planos', icon: 'card_membership', route: '/plans',
-      roles: [UserRole.Admin, UserRole.Receptionist] },
+      roles: [UserRole.Admin] },
     { label: 'Matrículas', icon: 'assignment_turned_in', route: '/enrollments',
       roles: [UserRole.Admin, UserRole.Receptionist] },
     { label: 'Agenda', icon: 'calendar_month', route: '/schedules',

@@ -50,10 +50,12 @@
                   matTooltip="Registrar pagamento">
                   <mat-icon class="text-green-500">payments</mat-icon>
                 </button>
-                <button mat-icon-button (click)="onCancel(financial.id, financial.amount)" matTooltip="Cancelar">
+                @if (isAdmin) {
+                <button mat-icon-button (click)="onCancel(financial.id, financial.amount)"
+                  matTooltip="Cancelar cobrança">
                   <mat-icon class="text-red-400">cancel</mat-icon>
                 </button>
-
+                }
               </div>
               }
             </div>

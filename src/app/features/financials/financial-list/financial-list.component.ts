@@ -7,24 +7,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FinancialService } from '../../../core/services/financial/financial.service';
 import { StudentService } from '../../../core/services/student/student.service';
-import {
-  FinancialSummary,
-  FinancialStatus,
-} from '../../../core/models/financial.model';
+import { FinancialSummary, FinancialStatus } from '../../../core/models/financial.model';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import {
-  BadgeComponent,
-  BadgeType,
-} from '../../../shared/components/badge/badge.component';
+import { BadgeComponent, BadgeType } from '../../../shared/components/badge/badge.component';
 import { AppButtonComponent } from '../../../shared/components/app-button/app-button.component';
 import { PaginatorComponent } from '../../../shared/components/paginator/paginator.component';
-import {
-  FinancialFilterComponent,
-  FinancialFilter,
-} from '../financial-filter/financial-filter.component';
+import { FinancialFilterComponent, FinancialFilter } from '../financial-filter/financial-filter.component';
 import { NotificationService } from '../../../core/services/notification/notification.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { UserRole } from '../../../core/models/auth.model';
 
 @Component({
   selector: 'app-financial-list',
@@ -66,10 +59,16 @@ export class FinancialListComponent implements OnInit {
     private financialService: FinancialService,
     private studentService: StudentService,
     private notification: NotificationService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.loadOverdue();
+  }
+
+  /// Indica se o usuário logado é Administrador.
+  get isAdmin(): boolean {
+    return this.authService.getCurrentUser()?.role === UserRole.Admin;
   }
 
   /// Carrega todas as cobranças vencidas do sistema.

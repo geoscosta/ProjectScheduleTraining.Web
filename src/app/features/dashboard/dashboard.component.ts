@@ -6,13 +6,21 @@ import { StudentService } from '../../core/services/student/student.service';
 import { FinancialService } from '../../core/services/financial/financial.service';
 import { ScheduleService } from '../../core/services/schedule/schedule.service';
 import { StudentSummary } from '../../core/models/student.model';
-import { FinancialSummary, FinancialReport } from '../../core/models/financial.model';
-import { ScheduleSummary, ScheduleStatus } from '../../core/models/schedule.model';
+import {
+  FinancialSummary,
+  FinancialReport,
+} from '../../core/models/financial.model';
+import {
+  ScheduleSummary,
+  ScheduleStatus,
+} from '../../core/models/schedule.model';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { BadgeComponent } from '../../shared/components/badge/badge.component';
+import { UserRole } from '../../core/models/auth.model';
+import { AuthService } from '../../core/services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,13 +33,12 @@ import { BadgeComponent } from '../../shared/components/badge/badge.component';
     StatCardComponent,
     EmptyStateComponent,
     LoadingSpinnerComponent,
-    BadgeComponent
+    BadgeComponent,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
-
   isLoading = true;
   today = new Date();
   ScheduleStatus = ScheduleStatus;
@@ -40,11 +47,13 @@ export class DashboardComponent implements OnInit {
   overdueFinancials: FinancialSummary[] = [];
   todaySchedules: ScheduleSummary[] = [];
   financialReport: FinancialReport | null = null;
+  UserRole = UserRole;
 
   constructor(
     private studentService: StudentService,
     private financialService: FinancialService,
-    private scheduleService: ScheduleService
+    private scheduleService: ScheduleService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -70,10 +79,10 @@ export class DashboardComponent implements OnInit {
     /// Carrega os alunos ativos do sistema.
     this.studentService.getAll().subscribe({
       next: (students) => {
-        this.activeStudents = students.filter(s => s.status === 1);
+        this.activeStudents = students.filter((s) => s.status === 1);
         checkComplete();
       },
-      error: () => checkComplete()
+      error: () => checkComplete(),
     });
 
     /// Carrega as cobranças vencidas para controle de inadimplência.
@@ -82,7 +91,7 @@ export class DashboardComponent implements OnInit {
         this.overdueFinancials = financials;
         checkComplete();
       },
-      error: () => checkComplete()
+      error: () => checkComplete(),
     });
 
     /// Carrega os horários do dia atual.
@@ -91,7 +100,7 @@ export class DashboardComponent implements OnInit {
         this.todaySchedules = schedules;
         checkComplete();
       },
-      error: () => checkComplete()
+      error: () => checkComplete(),
     });
 
     /// Carrega o relatório financeiro do mês atual.
@@ -100,7 +109,7 @@ export class DashboardComponent implements OnInit {
         this.financialReport = report;
         checkComplete();
       },
-      error: () => checkComplete()
+      error: () => checkComplete(),
     });
   }
 
@@ -115,7 +124,7 @@ export class DashboardComponent implements OnInit {
       [ScheduleStatus.Available]: 'Disponível',
       [ScheduleStatus.Full]: 'Lotada',
       [ScheduleStatus.Blocked]: 'Bloqueada',
-      [ScheduleStatus.Cancelled]: 'Cancelada'
+      [ScheduleStatus.Cancelled]: 'Cancelada',
     };
     return labels[status];
   }
@@ -126,7 +135,7 @@ export class DashboardComponent implements OnInit {
       [ScheduleStatus.Available]: 'bg-green-100 text-green-700',
       [ScheduleStatus.Full]: 'bg-red-100 text-red-700',
       [ScheduleStatus.Blocked]: 'bg-yellow-100 text-yellow-700',
-      [ScheduleStatus.Cancelled]: 'bg-gray-100 text-gray-700'
+      [ScheduleStatus.Cancelled]: 'bg-gray-100 text-gray-700',
     };
     return classes[status];
   }
@@ -134,5 +143,22 @@ export class DashboardComponent implements OnInit {
   /// Retorna o nome do mês atual em português.
   get currentMonthName(): string {
     return new Date().toLocaleDateString('pt-BR', { month: 'long' });
+  }
+
+  /// Retorna o perfil do usuário logado.
+  get currentUserRole(): UserRole | null {
+    return this.authService.getCurrentUser()?.role ?? null;
+  }
+
+  get isAdmin(): boolean {
+    return this.currentUserRole === UserRole.Admin;
+  }
+
+  get isTrainer(): boolean {
+    return this.currentUserRole === UserRole.Trainer;
+  }
+
+  get isReceptionist(): boolean {
+    return this.currentUserRole === UserRole.Receptionist;
   }
 }
